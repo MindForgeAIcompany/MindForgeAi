@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>MindForge · Password Login</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='46' fill='%237c3eff'/%3E%3Cpath fill='white' d='M35 50 L45 42 L50 35 L55 42 L65 50 L55 58 L50 65 L45 58 Z'/%3E%3C/svg%3E">
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+        body{background:#0a0a0a;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:#fff;min-height:100vh;display:flex;flex-direction:column}
+        .app-container{display:flex;flex:1;overflow:hidden}
+        .sidebar{width:280px;background:#0f0f0f;border-right:1px solid #222;display:flex;flex-direction:column;overflow:hidden;transition:transform 0.2s}
+        .sidebar-header{padding:16px;border-bottom:1px solid #222}
+        .new-chat-btn{width:100%;background:#7c3eff;border:none;border-radius:40px;padding:12px;color:#fff;font-weight:600;cursor:pointer;font-size:14px}
+        .new-chat-btn:hover{background:#8b4eff}
+        .chats-list{flex:1;overflow-y:auto;padding:8px}
+        .chat-item{padding:12px;border-radius:12px;margin-bottom:4px;cursor:pointer;background:#111;border:1px solid #222;position:relative}
+        .chat-item.active{background:#1a1a1a;border-color:#7c3eff}
+        .chat-name{font-size:14px;font-weight:500;margin-bottom:4px;padding-right:24px}
+        .chat-preview{font-size:11px;color:#888;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+        .delete-chat{position:absolute;top:12px;right:12px;background:none;border:none;color:#666;cursor:pointer;font-size:14px}
+        .delete-chat:hover{color:#ff4444}
+        .main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+        .header{padding:12px 20px;border-bottom:1px solid #222;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
+        .logo{display:flex;align-items:center;gap:10px}
+        .logo-icon{width:36px;height:36px;background:linear-gradient(135deg,#7c3eff,#a855f7);border-radius:12px;display:flex;align-items:center;justify-content:center}
+        .logo-text{font-size:20px;font-weight:600;background:linear-gradient(135deg,#fff,#a855f7);background-clip:text;-webkit-background-clip:text;color:transparent}
+        .user-info{display:flex;align-items:center;gap:12px;background:#111;padding:6px 14px;border-radius:40px}
+        .user-name{font-size:14px;font-weight:500}
+        .logout-btn{background:#2a2a2a;border:none;border-radius:40px;padding:6px 12px;color:#fff;cursor:pointer}
+        .chat-area{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:12px}
+        .message{display:flex;gap:10px}
+        .avatar{width:32px;height:32px;border-radius:32px;background:#1a1a1a;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+        .user .avatar{background:#7c3eff}
+        .ai .avatar{background:#2a2a2a;border:1px solid #7c3eff}
+        .content{background:#111;padding:10px 14px;border-radius:18px;max-width:85%;font-size:14px;line-height:1.6;border:0.5px solid #222}
+        .user .content{background:#1a1a1a}
+        pre{background:#0a0a0a;padding:12px;border-radius:12px;overflow-x:auto;margin:8px 0;border:1px solid #2a2a2a;font-family:monospace;font-size:12px}
+        .image-grid{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+        .image-card{width:100px;border-radius:8px;overflow:hidden;background:#1a1a1a}
+        .image-card img{width:100%;height:80px;object-fit:cover}
+        iframe{width:100%;height:140px;border-radius:8px;margin-top:6px}
+        .input-area{padding:16px 20px;border-top:1px solid #222}
+        .input-wrapper{display:flex;gap:10px}
+        textarea{flex:1;background:#111;border:1px solid #222;border-radius:28px;padding:12px 16px;color:#fff;font-family:inherit;font-size:14px;resize:none;outline:none;max-height:100px}
+        textarea:focus{border-color:#7c3eff}
+        button{background:#7c3eff;border:none;border-radius:28px;padding:0 24px;font-weight:600;color:#fff;cursor:pointer}
+        .typing{display:flex;gap:4px;padding:8px 12px}
+        .dot{width:6px;height:6px;background:#7c3eff;border-radius:50%;animation:bounce 1s infinite}
+        @keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+        @media(max-width:700px){
+            .sidebar{position:fixed;left:-280px;z-index:100;height:100%}
+            .sidebar.open{left:0}
+            .menu-toggle{display:block}
+            .header{flex-direction:column;align-items:stretch}
+        }
+        .menu-toggle{display:none;position:fixed;bottom:20px;left:20px;z-index:101;background:#7c3eff;border:none;border-radius:40px;padding:12px;font-size:18px;cursor:pointer}
+        .auth-container{max-width:400px;margin:auto;background:#0f0f0f;border-radius:32px;padding:32px;text-align:center}
+        .auth-container input{width:100%;background:#111;border:1px solid #222;border-radius:24px;padding:14px;margin:10px 0;color:#fff}
+        .auth-container button{width:100%;padding:14px;margin-top:10px}
+        .error{color:#ff4444;font-size:12px;margin-top:8px}
+        .success{color:#4caf50;font-size:12px;margin-top:8px}
+    </style>
+</head>
+<body>
+<div class="menu-toggle" id="menuToggle">☰</div>
+<div id="app"></div>
+
+<script>
+let users = [], currentUser = null, currentChatId = null, chats = [];
+const BOT_ID = 'bot_mindforge', BOT_NAME = 'MindForge';
+
+// ============ ПОИСК В ИНТЕРНЕТЕ ============
+async function searchWikipedia(query, lang) {
+    const wikiLang = lang === 'ru' ? 'ru' : 'en';
+    try {
+        const s = await fetch(`https://${wikiLang}.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(query)}&format=json&origin=*&srlimit=1`);
+        const d = await s.json();
+        if(d.query?.search?.length) {
+            const title = d.query.search[0].title;
+            const r = await fetch(`https://${wikiLang}.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}`);
+            const t = await r.json();
+            if(t.extract) return { success: true, content: t.extract.substring(0, 1200), title: t.title, url: `https://${wikiLang}.wikipedia.org/wiki/${encodeURIComponent(title)}` };
+        }
+        return { success: false };
+    } catch(e) { return { success: false }; }
+}
+
+// ============ КАРТИНКИ ============
+async function searchImages(query) {
+    const q = encodeURIComponent(query);
+    try {
+        const r = await fetch(`https://pixabay.com/api/?key=46528406-7a3f6e6f5a6f5a6f5a6f5a6f&q=${q}&image_type=photo&per_page=6`);
+        const d = await r.json();
+        if(d.hits && d.hits.length) {
+            let html = `<div class="image-grid">`;
+            for(let img of d.hits.slice(0,6)) {
+                html += `<div class="image-card"><img src="${img.webformatURL}" loading="lazy"><a href="${img.pageURL}" target="_blank">pixabay</a></div>`;
+            }
+            html += `</div><a href="https://pixabay.com/images/search/${q}/" target="_blank">🔍 Больше картинок</a>`;
+            return html;
+        }
+    } catch(e) {}
+    return `<a href="https://unsplash.com/s/photos/${q}" target="_blank">🔍 Поиск картинок: ${query}</a>`;
+}
+
+// ============ МУЗЫКА/ВИДЕО ============
+function youtubeSearch(query) {
+    const u = encodeURIComponent(query);
+    return `<a href="https://www.youtube.com/results?search_query=${u}" target="_blank">🎬 Открыть в YouTube: ${query}</a><iframe src="https://www.youtube.com/embed?listType=search&list=${u}" frameborder="0" allowfullscreen></iframe>`;
+}
+
+// ============ КОД ============
+function generateCode(lang, task) {
+    const t = task.toLowerCase();
+    const samples = {
+        python: {
+            factorial: "def factorial(n):\n    return 1 if n <= 1 else n * factorial(n-1)\n\nprint(factorial(5))",
+            fibonacci: "def fibonacci(n):\n    a,b=0,1\n    for _ in range(n):\n        yield a\n        a,b=b,a+b\n\nprint(list(fibonacci(10)))",
+            default: "print('Hello, World!')"
+        },
+        javascript: {
+            factorial: "function factorial(n) { return n <= 1 ? 1 : n * factorial(n-1); }\nconsole.log(factorial(5));",
+            fibonacci: "function fib(n){let a=0,b=1;for(let i=0;i<n;i++){console.log(a);[a,b]=[b,a+b]}}\nfib(10);",
+            default: "console.log('Hello, World!');"
+        },
+        html: { default: "<!DOCTYPE html>\n<html>\n<head><title>MindForge</title></head>\n<body>\n    <h1>Hello from MindForge!</h1>\n</body>\n</html>" },
+        sql: { default: "SELECT * FROM users WHERE name LIKE 'A%';" },
+        java: { default: "public class Main {\n    public static void main(String[] args) {\n        System.out.println(\"Hello!\");\n    }\n}" }
+    };
+    const lib = samples[lang];
+    if(!lib) return null;
+    if(t.includes('факториал') || t.includes('factorial')) return lib.factorial || lib.default;
+    if(t.includes('фибоначчи') || t.includes('fibonacci')) return lib.fibonacci || lib.default;
+    return lib.default;
+}
+
+// ============ ОСНОВНОЙ ИНТЕЛЛЕКТ ============
+async function deepThink(message, lang) {
+    const msg = message.trim().toLowerCase();
+    
+    // ========== КАРТИНКИ ==========
+    if(msg.includes('нарисуй') || msg.includes('покажи картинк') || msg.includes('найди картинк') || msg.includes('фото')) {
+        let q = message.replace(/нарисуй|покажи|найди|картинк|фото/gi,'').trim();
+        if(q) return await searchImages(q);
+        return 'Что нарисовать? Например: "нарисуй кота"';
+    }
+    
+    // ========== МУЗЫКА ==========
+    if(msg.includes('музык') || msg.includes('песн') || msg.includes('включи')) {
+        let q = message.replace(/музык|песн|включи/gi,'').trim();
+        if(q) return youtubeSearch(q + " music");
+        return 'Какую музыку включить? Например: "включи музыку queen"';
+    }
+    
+    // ========== ВИДЕО ==========
+    if(msg.includes('видео') && (msg.includes('включи') || msg.includes('покажи'))) {
+        let q = message.replace(/видео|включи|покажи/gi,'').trim();
+        if(q) return youtubeSearch(q);
+        return 'Какое видео включить? Например: "включи видео смешные коты"';
+    }
+    
+    // ========== КОД ==========
+    const codeMatch = msg.match(/(?:напиши|сделай|покажи)\s+(?:код|скрипт)\s+(?:на\s+)?(\w+)/i);
+    if(codeMatch || msg.includes('код')) {
+        let langCode = 'python';
+        if(msg.includes('python')) langCode = 'python';
+        else if(msg.includes('js') || msg.includes('javascript')) langCode = 'javascript';
+        else if(msg.includes('html')) langCode = 'html';
+        else if(msg.includes('sql')) langCode = 'sql';
+        else if(msg.includes('java')) langCode = 'java';
+        const code = generateCode(langCode, msg);
+        if(code) return `\`\`\`${langCode}\n${code}\n\`\`\``;
+    }
+    
+    // ========== КАЛЬКУЛЯТОР ==========
+    if(/[\d+\-*/%√^]/.test(msg) && (/\d/.test(msg) || /√/.test(msg))) {
+        try {
+            let s = msg.replace(/√(\d+)/g,'Math.sqrt($1)').replace(/\^/g,'**');
+            let r = Function('return ('+s+')')();
+            if(typeof r==='number' && !isNaN(r)) return r.toString();
+        } catch(e){}
+    }
+    
+    // ========== НАУКА ==========
+    if(msg.includes('квант')) return "Квантовая механика описывает мир атомов. Суперпозиция, запутанность, волновая функция. На этом основаны лазеры, транзисторы и квантовые компьютеры.";
+    if(msg.includes('относительн') || msg.includes('эйнштейн')) return "Теория относительности: время замедляется при движении, гравитация искривляет пространство-время. E=mc² связывает массу и энергию.";
+    if(msg.includes('черн') && msg.includes('дыр')) return "Чёрные дыры — области с огромной гравитацией, откуда даже свет не может вырваться. Испаряются через излучение Хокинга.";
+    if(msg.includes('большой взрыв')) return "Большой взрыв произошёл 13.8 млрд лет назад. Вселенная расширяется до сих пор.";
+    if(msg.includes('космос') || msg.includes('вселенн')) return "Во Вселенной больше звёзд, чем песчинок на всех пляжах Земли. Солнце составляет 99.86% массы Солнечной системы.";
+    if(msg.includes('днк') || msg.includes('ген')) return "ДНК человека на 50% совпадает с ДНК банана. CRISPR позволяет редактировать гены.";
+    if(msg.includes('мозг') || msg.includes('нейрон')) return "Мозг генерирует 20 ватт энергии. 86 млрд нейронов, 100 триллионов связей.";
+    if(msg.includes('росси') || msg.includes('russia')) return "Смутное время (1598-1613), Романовы (1613), Пётр I (1689), Екатерина II (1762), 1812, 1917, 1941-1945, 1991.";
+    
+    // ========== ТЕХНОЛОГИИ ==========
+    if(msg.includes('ии') || msg.includes('ai') || msg.includes('искусствен')) return "Искусственный интеллект — машины, обучающиеся на данных. Нейросети, deep learning. Используется в медицине, авто, творчестве.";
+    if(msg.includes('интернет')) return "Интернет: ARPANET (1969), WWW (1991). 5 млрд+ пользователей. Web3, блокчейн.";
+    
+    // ========== ФИЛОСОФИЯ ==========
+    if(msg.includes('смысл жизни')) return "Философы спорят веками. Наука: передача генетической информации. Экзистенциализм: смысл создаёшь ты сам.";
+    if(msg.includes('любовь')) return "Химия: дофамин (удовольствие), окситоцин (привязанность), серотонин (спокойствие). Но любовь больше химии — это выбор, действие, искусство быть рядом.";
+    
+    // ========== ФАКТЫ ==========
+    if(msg.includes('факт') || msg.includes('интересно')) {
+        const facts = [
+            "💧 Вода — единственное вещество, расширяющееся при замерзании.",
+            "🌌 Во Вселенной больше звёзд, чем песчинок на Земле.",
+            "🧠 Мозг генерирует 20 ватт — хватит на лампочку.",
+            "📜 Клеопатра жила ближе к iPhone, чем к пирамидам.",
+            "🐙 Осьминог имеет три сердца и голубую кровь.",
+            "🦒 Жирафы спят 30 минут в день стоя.",
+            "⚛️ Атомы на 99.9999% состоят из пустоты.",
+            "🌊 Горячая вода замерзает быстрее холодной (эффект Мпембы)."
+        ];
+        return facts[Math.floor(Math.random() * facts.length)] + "\n\nХочешь ещё факт? Просто спроси!";
+    }
+    
+    // ========== РАЗГОВОР ==========
+    if(msg === 'привет' || msg === 'здравствуй') return "Привет! Как дела?";
+    if(msg === 'hi' || msg === 'hello') return "Hi! How are you?";
+    if(msg.includes('как дела')) return "Норм. У тебя?";
+    if(msg.includes('спасибо')) return "Пожалуйста!";
+    if(msg.includes('пока')) return "Пока!";
+    if(msg.includes('кто ты')) return "MindForge — умный AI. Могу искать картинки, музыку, видео, писать код, считать, отвечать на вопросы.";
+    
+    // ========== ПОИСК В ИНТЕРНЕТЕ ==========
+    const wiki = await searchWikipedia(message, lang);
+    if(wiki.success) return `${wiki.content}\n\n${wiki.url}`;
+    
+    return lang === 'ru' ? "?" : "?";
+}
+
+function detectLang(t) {
+    let f = t.trim().charAt(0);
+    return f && /[\u0400-\u04FF]/.test(f) ? 'ru' : 'en';
+}
+
+// ============ АВТОРИЗАЦИЯ С ПАРОЛЕМ ============
+function loadAllData() {
+    try {
+        const su = localStorage.getItem('mf_users'); if(su) users = JSON.parse(su);
+        const sc = localStorage.getItem('mf_chats'); if(sc) chats = JSON.parse(sc);
+        const scur = localStorage.getItem('mf_current_user'); if(scur) currentUser = JSON.parse(scur);
+        if(!users.find(u => u.id === BOT_ID)) { users.push({ id: BOT_ID, name: BOT_NAME, isBot: true }); saveUsers(); }
+    } catch(e) {}
+}
+function saveUsers() { localStorage.setItem('mf_users', JSON.stringify(users)); }
+function saveChats() { localStorage.setItem('mf_chats', JSON.stringify(chats)); }
+function saveCurrentUser() { if(currentUser) localStorage.setItem('mf_current_user', JSON.stringify(currentUser)); }
+function registerUser(name, password) {
+    if(users.find(u => u.name === name && !u.isBot)) return { success: false, error: 'Имя уже занято' };
+    const nu = { id: Date.now().toString(), name, password, createdAt: new Date().toISOString() };
+    users.push(nu); saveUsers();
+    return { success: true, user: nu };
+}
+function loginUser(name, password) {
+    const user = users.find(u => u.name === name && u.password === password && !u.isBot);
+    if(user) return { success: true, user };
+    return { success: false, error: 'Неверное имя или пароль' };
+}
+function createNewChat(u1, u2) { const c = { id: Date.now().toString(), user1: u1, user2: u2, messages: [], lastUpdated: Date.now() }; chats.push(c); saveChats(); return c; }
+function addMessage(cid, text, isUser) { const c = chats.find(c => c.id === cid); if(c) { c.messages.push({ text, isUser, timestamp: Date.now() }); c.lastUpdated = Date.now(); saveChats(); return true; } return false; }
+function getUserById(id) { return users.find(u => u.id === id); }
+
+function showAuthScreen() {
+    const app = document.getElementById('app');
+    app.innerHTML = `
+        <div class="auth-container">
+            <div class="logo-icon" style="margin:0 auto 20px"><svg width="40" height="40" viewBox="0 0 24 24" fill="none"><path d="M12 3L14 7L18 7.5L15 10L16 14L12 12L8 14L9 10L6 7.5L10 7L12 3Z" fill="white"/><circle cx="12" cy="12" r="2.5" fill="#7c3eff"/></svg></div>
+            <h2>MindForge</h2>
+            <div id="loginTab" style="display:flex;gap:10px;margin:20px 0">
+                <button id="showLoginBtn" style="background:#7c3eff;flex:1">Вход</button>
+                <button id="showRegisterBtn" style="background:#2a2a2a;flex:1">Регистрация</button>
+            </div>
+            <div id="loginForm">
+                <input type="text" id="loginName" placeholder="Имя пользователя">
+                <input type="password" id="loginPassword" placeholder="Пароль">
+                <button id="loginBtn">Войти</button>
+                <div id="loginError" class="error"></div>
+            </div>
+            <div id="registerForm" style="display:none">
+                <input type="text" id="regName" placeholder="Имя пользователя">
+                <input type="password" id="regPassword" placeholder="Пароль">
+                <input type="password" id="regConfirm" placeholder="Повторите пароль">
+                <button id="registerBtn">Зарегистрироваться</button>
+                <div id="regError" class="error"></div>
+            </div>
+        </div>
+    `;
+    
+    document.getElementById('showLoginBtn')?.addEventListener('click', () => {
+        document.getElementById('loginForm').style.display = 'block';
+        document.getElementById('registerForm').style.display = 'none';
+        document.getElementById('showLoginBtn').style.background = '#7c3eff';
+        document.getElementById('showRegisterBtn').style.background = '#2a2a2a';
+    });
+    document.getElementById('showRegisterBtn')?.addEventListener('click', () => {
+        document.getElementById('loginForm').style.display = 'none';
+        document.getElementById('registerForm').style.display = 'block';
+        document.getElementById('showRegisterBtn').style.background = '#7c3eff';
+        document.getElementById('showLoginBtn').style.background = '#2a2a2a';
+    });
+    
+    document.getElementById('loginBtn')?.addEventListener('click', () => {
+        const name = document.getElementById('loginName').value.trim();
+        const pass = document.getElementById('loginPassword').value;
+        if(!name || !pass) {
+            document.getElementById('loginError').innerText = 'Заполните все поля';
+            return;
+        }
+        const res = loginUser(name, pass);
+        if(res.success) {
+            currentUser = res.user;
+            saveCurrentUser();
+            renderMainApp();
+        } else {
+            document.getElementById('loginError').innerText = res.error;
+        }
+    });
+    
+    document.getElementById('registerBtn')?.addEventListener('click', () => {
+        const name = document.getElementById('regName').value.trim();
+        const pass = document.getElementById('regPassword').value;
+        const confirm = document.getElementById('regConfirm').value;
+        if(!name || !pass || !confirm) {
+            document.getElementById('regError').innerText = 'Заполните все поля';
+            return;
+        }
+        if(pass !== confirm) {
+            document.getElementById('regError').innerText = 'Пароли не совпадают';
+            return;
+        }
+        if(pass.length < 3) {
+            document.getElementById('regError').innerText = 'Пароль должен быть не менее 3 символов';
+            return;
+        }
+        const res = registerUser(name, pass);
+        if(res.success) {
+            currentUser = res.user;
+            saveCurrentUser();
+            renderMainApp();
+        } else {
+            document.getElementById('regError').innerText = res.error;
+        }
+    });
+}
+
+function renderMainApp() {
+    const app = document.getElementById('app');
+    const userChats = [...chats].filter(c => c.user1 === currentUser.id || c.user2 === currentUser.id).sort((a,b)=>b.lastUpdated-a.lastUpdated);
+    const bot = users.find(u => u.id === BOT_ID);
+    
+    app.innerHTML = `<div class="app-container"><div class="sidebar" id="sidebar"><div class="sidebar-header"><button class="new-chat-btn" id="newChatBtn">+ Новый чат</button></div><div class="chats-list" id="chatsList">${userChats.map(chat=>{const oid=chat.user1===currentUser.id?chat.user2:chat.user1; const other=getUserById(oid); const isBot=other?.id===BOT_ID; const last=chat.messages[chat.messages.length-1]; return `<div class="chat-item ${currentChatId===chat.id?'active':''}" data-chat="${chat.id}"><div class="chat-name">${other?.name||'Пользователь'} ${isBot?'🤖':''}</div><div class="chat-preview">${last?(last.isUser?'Вы: ':'')+last.text.substring(0,30):'Новый чат'}</div><button class="delete-chat" data-chat="${chat.id}">✕</button></div>`;}).join('')}${userChats.length===0?'<div style="padding:20px;text-align:center;color:#666">Нет чатов</div>':''}</div></div><div class="main"><div class="header"><div class="logo"><div class="logo-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 3L14 7L18 7.5L15 10L16 14L12 12L8 14L9 10L6 7.5L10 7L12 3Z" fill="white"/><circle cx="12" cy="12" r="2.5" fill="#7c3eff"/></svg></div><div class="logo-text">MindForge</div></div><div class="user-info"><div><div class="user-name">${currentUser.name}</div></div><button class="logout-btn" id="logoutBtn">🚪</button></div></div><div class="chat-area" id="chatArea">${currentChatId?(()=>{const c=chats.find(c=>c.id===currentChatId); if(!c) return '<div style="text-align:center;color:#666;margin-top:50px">Выберите чат</div>'; const oid=c.user1===currentUser.id?c.user2:c.user1; const other=getUserById(oid); const isBot=other?.id===BOT_ID; return `<div style="padding:8px;border-bottom:1px solid #222;margin-bottom:12px"><span><strong>${other?.name} ${isBot?'🤖':''}</strong></span></div>${c.messages.map(m=>`<div class="message ${m.isUser?'user':'ai'}"><div class="avatar">${m.isUser?'👤':(isBot?'🤖':'⚡')}</div><div class="content">${m.text.replace(/\n/g,'<br>')}</div></div>`).join('')}`;})():'<div style="text-align:center;color:#666;margin-top:50px">Выберите чат</div>'}</div><div class="input-area"><div class="input-wrapper"><textarea id="msgInput" rows="1" placeholder=""></textarea><button id="sendMsgBtn">→</button></div></div></div></div>`;
+    
+    document.getElementById('newChatBtn')?.addEventListener('click',()=>{ if(bot){ const nc=createNewChat(currentUser.id,bot.id); currentChatId=nc.id; renderMainApp(); } });
+    document.getElementById('logoutBtn')?.addEventListener('click',()=>{ currentUser=null; currentChatId=null; localStorage.removeItem('mf_current_user'); showAuthScreen(); });
+    document.querySelectorAll('.chat-item').forEach(el=>{ el.addEventListener('click',(e)=>{ if(e.target.classList.contains('delete-chat')) return; const id=el.dataset.chat; if(id){ currentChatId=id; renderMainApp(); } }); const d=el.querySelector('.delete-chat'); if(d) d.addEventListener('click',(e)=>{ e.stopPropagation(); const id=d.dataset.chat; chats=chats.filter(c=>c.id!==id); if(currentChatId===id) currentChatId=null; saveChats(); renderMainApp(); }); });
+    
+    const input = document.getElementById('msgInput');
+    const sendBtn = document.getElementById('sendMsgBtn');
+    let processing = false;
+    async function sendMsg() {
+        const text = input.value.trim();
+        if(!text || !currentChatId || processing) return;
+        processing = true; sendBtn.disabled = true;
+        addMessage(currentChatId, text, true);
+        const chat = chats.find(c=>c.id===currentChatId);
+        const oid = chat.user1===currentUser.id?chat.user2:chat.user1;
+        const other = getUserById(oid);
+        if(other?.id === BOT_ID) {
+            const lang = detectLang(text);
+            const reply = await deepThink(text, lang);
+            addMessage(currentChatId, reply, false);
+            renderMainApp();
+        }
+        input.value = ''; renderMainApp();
+        processing = false; sendBtn.disabled = false;
+    }
+    sendBtn?.addEventListener('click', sendMsg);
+    input?.addEventListener('keydown', e => { if(e.key === 'Enter' && !e.shiftKey && !processing) { e.preventDefault(); sendMsg(); } });
+    
+    const sidebar = document.getElementById('sidebar');
+    const toggle = document.getElementById('menuToggle');
+    if(toggle) toggle.onclick = () => sidebar.classList.toggle('open');
+    document.addEventListener('click', (e) => { if(window.innerWidth <= 700 && sidebar && !sidebar.contains(e.target) && !toggle?.contains(e.target) && sidebar.classList.contains('open')) sidebar.classList.remove('open'); });
+    input?.focus();
+}
+
+loadAllData();
+if(currentUser) renderMainApp();
+else showAuthScreen();
+</script>
+</body>
+</html>
