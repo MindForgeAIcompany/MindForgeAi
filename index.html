@@ -4,11 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>MindForge · AI Assistant</title>
+    <!-- ИКОНКА (favicon) -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='46' fill='%237c3eff'/%3E%3Cpath fill='white' d='M35 50 L45 42 L50 35 L55 42 L65 50 L55 58 L50 65 L45 58 Z'/%3E%3C/svg%3E">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='46' fill='%237c3eff'/%3E%3Cpath fill='white' d='M35 50 L45 42 L50 35 L55 42 L65 50 L55 58 L50 65 L45 58 Z'/%3E%3C/svg%3E">
     <style>
-        /* твой CSS */
-    </style>
-</head>
         *{margin:0;padding:0;box-sizing:border-box}
         body{background:#0a0a0a;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:#fff;height:100vh;overflow:hidden}
         .app-container{display:flex;width:100%;height:100vh}
@@ -125,10 +124,8 @@
     async function getAIResponse(msg, lang){
         let m=msg.toLowerCase();
         
-        // ШУТКИ
         if(m.includes('шутк')||m.includes('анекдот')) return getJoke();
         
-        // HTML ГЕНЕРАЦИЯ
         if(m.includes('напиши html')||m.includes('сделай html')||m.includes('html страницу')){
             let topic=msg.replace(/напиши html|сделай html|html страницу/gi,'').trim()||'пример';
             let htmlCode=getHTMLCode(topic);
@@ -136,25 +133,21 @@
             return '<pre><code class="language-html">'+escaped+'</code></pre><button class="run-btn" onclick="runHTML(`'+htmlCode.replace(/`/g, '\\`')+'`)">▶ Запустить HTML</button>';
         }
         
-        // КОД
         if(m.match(/(?:напиши|сделай)\s+код/)){
             let code='def factorial(n):\n    return 1 if n<=1 else n*factorial(n-1)\nprint(factorial(5))';
             return '<pre><code class="language-python">'+escapeHtml(code)+'</code></pre>';
         }
         
-        // КАРТИНКИ
         if(m.includes('нарисуй')||m.includes('покажи картинк')){
             let query=msg.replace(/нарисуй|покажи|картинк|фото/gi,'').trim()||'кот';
             return await searchImages(query);
         }
         
-        // МУЗЫКА
         if(m.includes('музык')||m.includes('песн')){
             let query=msg.replace(/музык|песн|включи/gi,'').trim();
             return youtubeSearch(query+" music");
         }
         
-        // КАЛЬКУЛЯТОР
         if(/[\d+\-*/%√^]/.test(m)&&(/\d/.test(m)||/√/.test(m))){
             try{
                 let s=m.replace(/√(\d+)/g,'Math.sqrt($1)').replace(/\^/g,'**');
@@ -163,8 +156,7 @@
             }catch(e){}
         }
         
-        // КТО ТЫ / ЧТО УМЕЕШЬ (ГЛАВНОЕ)
-        if(m.includes('кто ты')||m.includes('что ты умеешь')||m.includes('твои возможности')||m.includes('расскажи о себе')||m.includes('what can you do')){
+        if(m.includes('кто ты')||m.includes('что ты умеешь')||m.includes('твои возможности')){
             return `🧠 **MindForge — твой умный AI ассистент**
 
 📋 **Что я умею:**
@@ -184,19 +176,16 @@
 Чем могу помочь? 🔥`;
         }
         
-        // ПРИВЕТСТВИЯ
         if(m.includes('привет')||m.includes('здравствуй')) return "Привет! 😊 Как дела? Спроси \"что ты умеешь\" чтобы узнать мои возможности.";
         if(m.includes('как дела')) return "Норм! А у тебя?";
         if(m.includes('спасибо')) return "Пожалуйста! 🙌 Подписывайся на Telegram: "+TG;
         if(m.includes('пока')) return "Пока! 👋 Заходи ещё!";
         
-        // ФАКТЫ
         if(m.includes('факт')||m.includes('интересно')){
             let facts=["💧 Вода расширяется при замерзании.","🌌 Во Вселенной больше звёзд, чем песчинок.","🧠 Мозг генерирует 20 ватт.","🐙 Осьминог — 3 сердца, голубая кровь."];
             return facts[Math.floor(Math.random()*facts.length)]+"\n\nХочешь ещё факт? Просто спроси!";
         }
         
-        // НАУКА
         if(m.includes('квант')) return "Квантовая механика: суперпозиция, запутанность. На этом основаны лазеры и квантовые компьютеры.";
         if(m.includes('черн')&&m.includes('дыр')) return "Чёрные дыры — области с огромной гравитацией, откуда даже свет не вырывается.";
         if(m.includes('днк')) return "ДНК человека на 50% совпадает с ДНК банана!";
