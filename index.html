@@ -3,282 +3,227 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>MindForge · AI Assistant</title>
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='46' fill='%237c3eff'/%3E%3Cpath fill='white' d='M35 50 L45 42 L50 35 L55 42 L65 50 L55 58 L50 65 L45 58 Z'/%3E%3C/svg%3E">
+    <title>MindForge AI</title>
     <style>
         *{margin:0;padding:0;box-sizing:border-box}
-        body{background:#0a0a0a;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:#fff;height:100vh;overflow:hidden}
+        body{background:#0a0a0a;font-family:system-ui,sans-serif;color:#fff;height:100vh;overflow:hidden}
+        
+        @keyframes fadeIn{from{opacity:0;transform:scale(0.95)}to{opacity:1;transform:scale(1)}}
+        @keyframes messageIn{from{opacity:0;transform:translateX(-20px)}to{opacity:1;transform:translateX(0)}}
+        @keyframes pulse{0%,100%{box-shadow:0 0 0 0 #7c3eff80}50%{box-shadow:0 0 0 3px #7c3eff40}}
+        @keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+        
+        .auth-container{max-width:420px;width:90%;background:#0f0f0f;border-radius:40px;padding:40px;text-align:center;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);border:1px solid #222;animation:fadeIn 0.3s ease}
+        .logo-icon{width:60px;height:60px;background:linear-gradient(135deg,#7c3eff,#a855f7);border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;animation:pulse 2s infinite}
+        h2{font-size:28px;margin-bottom:8px;background:linear-gradient(135deg,#fff,#a855f7);background-clip:text;-webkit-background-clip:text;color:transparent}
+        .subtitle{color:#888;margin-bottom:24px;font-size:14px}
+        .tab-buttons{display:flex;gap:12px;margin-bottom:24px}
+        .tab-btn{flex:1;padding:12px;border-radius:40px;border:none;cursor:pointer;font-size:14px;font-weight:500}
+        .tab-btn.active{background:linear-gradient(135deg,#7c3eff,#a855f7);color:#fff}
+        .tab-btn:not(.active){background:#2a2a2a;color:#aaa}
+        input{width:100%;background:#111;border:1px solid #222;border-radius:28px;padding:14px 18px;margin:10px 0;color:#fff;font-size:16px;outline:none}
+        input:focus{border-color:#7c3eff}
+        button{width:100%;padding:14px;margin-top:10px;background:linear-gradient(135deg,#7c3eff,#a855f7);border:none;border-radius:28px;color:#fff;font-weight:600;cursor:pointer}
+        .error{color:#ff4444;font-size:12px;margin-top:8px}
+        
         .app-container{display:flex;width:100%;height:100vh}
-        .sidebar{width:260px;background:#0f0f0f;border-right:1px solid #222;display:flex;flex-direction:column}
-        .sidebar-header{padding:16px;border-bottom:1px solid #222}
-        .new-chat-btn{width:100%;background:#7c3eff;border:none;border-radius:40px;padding:12px;color:#fff;font-weight:600;cursor:pointer}
+        .sidebar{width:280px;background:#0f0f0f;border-right:1px solid #222;display:flex;flex-direction:column}
+        .sidebar-header{padding:20px 16px;border-bottom:1px solid #222}
+        .new-chat-btn{width:100%;background:linear-gradient(135deg,#7c3eff,#a855f7);border:none;border-radius:40px;padding:12px;color:#fff;font-weight:600;cursor:pointer}
         .chats-list{flex:1;overflow-y:auto;padding:8px}
         .chat-item{padding:12px;border-radius:12px;margin-bottom:4px;cursor:pointer;background:#111;border:1px solid #222;position:relative}
-        .chat-item.active{background:#1a1a1a;border-color:#7c3eff}
+        .chat-item.active{border-color:#7c3eff;background:#1a1a1a}
         .chat-name{font-size:14px;font-weight:500;padding-right:24px}
         .chat-preview{font-size:11px;color:#888}
         .delete-chat{position:absolute;top:12px;right:12px;background:none;border:none;color:#666;cursor:pointer}
         .main{flex:1;display:flex;flex-direction:column;overflow:hidden}
-        .header{padding:12px 20px;border-bottom:1px solid #222;display:flex;justify-content:space-between;align-items:center}
-        .logo{display:flex;align-items:center;gap:10px}
-        .logo-icon{width:36px;height:36px;background:linear-gradient(135deg,#7c3eff,#a855f7);border-radius:12px;display:flex;align-items:center;justify-content:center}
-        .logo-text{font-size:20px;font-weight:600;background:linear-gradient(135deg,#fff,#a855f7);background-clip:text;-webkit-background-clip:text;color:transparent}
-        .user-info{display:flex;align-items:center;gap:12px;background:#111;padding:6px 14px;border-radius:40px}
+        .header{padding:12px 24px;border-bottom:1px solid #222;display:flex;justify-content:space-between;align-items:center}
+        .logo{display:flex;align-items:center;gap:12px}
+        .logo-icon-small{width:36px;height:36px;background:linear-gradient(135deg,#7c3eff,#a855f7);border-radius:10px;display:flex;align-items:center;justify-content:center}
+        .logo-text{font-size:20px;font-weight:700;background:linear-gradient(135deg,#fff,#a855f7);background-clip:text;-webkit-background-clip:text;color:transparent}
+        .user-info{display:flex;align-items:center;gap:12px;background:#111;padding:6px 16px;border-radius:40px}
         .user-name{font-size:14px}
-        .logout-btn{background:#2a2a2a;border:none;border-radius:40px;padding:6px 12px;color:#fff;cursor:pointer}
-        .chat-area{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:12px}
-        .message{display:flex;gap:10px}
-        .avatar{width:32px;height:32px;border-radius:32px;background:#1a1a1a;display:flex;align-items:center;justify-content:center}
-        .user .avatar{background:#7c3eff}
+        .api-badge{background:#7c3eff20;padding:4px 10px;border-radius:20px;font-size:10px;font-family:monospace;cursor:pointer;border:1px solid #7c3eff40}
+        .logout-btn{background:#2a2a2a;border:none;border-radius:40px;padding:6px 14px;color:#fff;cursor:pointer}
+        .logout-btn:hover{background:#ff4444}
+        .chat-area{flex:1;overflow-y:auto;padding:24px;display:flex;flex-direction:column;gap:16px}
+        .message{display:flex;gap:12px;animation:messageIn 0.2s ease}
+        .avatar{width:36px;height:36px;border-radius:36px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+        .user .avatar{background:linear-gradient(135deg,#7c3eff,#a855f7)}
         .ai .avatar{background:#2a2a2a;border:1px solid #7c3eff}
-        .content{background:#111;padding:10px 14px;border-radius:18px;max-width:80%;font-size:14px;line-height:1.5;border:0.5px solid #222}
-        .content pre{background:#0a0a0a;padding:12px;border-radius:12px;overflow-x:auto;font-family:monospace;font-size:12px;margin:8px 0}
-        .input-area{padding:16px 20px;border-top:1px solid #222}
-        .input-wrapper{display:flex;gap:10px}
-        textarea{flex:1;background:#111;border:1px solid #222;border-radius:28px;padding:12px 16px;color:#fff;font-family:inherit;resize:none;outline:none;font-size:14px}
-        button{background:#7c3eff;border:none;border-radius:28px;padding:0 24px;color:#fff;font-weight:600;cursor:pointer}
-        .typing{display:flex;gap:4px;padding:8px 12px}
-        .dot{width:6px;height:6px;background:#7c3eff;border-radius:50%;animation:bounce 1s infinite}
-        @keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
-        .chats-toggle-btn{display:none;position:fixed;bottom:20px;left:20px;z-index:100;background:#7c3eff;border:none;border-radius:40px;padding:14px 18px;font-size:20px;cursor:pointer}
-        .sidebar-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:99}
+        .content{background:#111;padding:12px 16px;border-radius:20px;max-width:75%;font-size:14px;line-height:1.5;border:0.5px solid #222}
+        
+        .input-area{padding:20px 24px;border-top:1px solid #222;background:#0a0a0a}
+        .input-wrapper{display:flex;gap:12px;align-items:flex-end}
+        textarea{flex:1;background:#111;border:1px solid #222;border-radius:28px;padding:14px 18px;color:#fff;font-family:inherit;resize:none;outline:none;font-size:15px;line-height:1.5;max-height:120px;min-height:48px}
+        textarea:focus{border-color:#7c3eff}
+        .send-btn{background:linear-gradient(135deg,#7c3eff,#a855f7);border:none;border-radius:40px;width:48px;height:48px;min-width:48px;color:#fff;font-weight:600;cursor:pointer;font-size:20px;display:flex;align-items:center;justify-content:center;padding:0}
+        .send-btn:hover{transform:scale(1.05)}
+        .send-btn:disabled{opacity:0.5}
+        
+        .typing-indicator{display:flex;gap:6px;padding:12px 16px;background:#111;border-radius:24px;width:fit-content}
+        .typing-dot{width:8px;height:8px;background:#7c3eff;border-radius:50%;animation:bounce 1s infinite}
+        .typing-dot:nth-child(2){animation-delay:0.2s}
+        .typing-dot:nth-child(3){animation-delay:0.4s}
+        .toast{position:fixed;bottom:20px;right:20px;background:#7c3eff;color:#fff;padding:12px 20px;border-radius:12px;z-index:300}
+        
         @media(max-width:700px){
             .sidebar{position:fixed;left:-280px;top:0;bottom:0;z-index:100}
             .sidebar.open{left:0}
+            .chats-toggle-btn{display:flex;position:fixed;bottom:20px;left:20px;background:#7c3eff;border:none;border-radius:40px;padding:14px 18px;cursor:pointer;z-index:100}
+            .sidebar-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:99}
             .sidebar-overlay.open{display:block}
-            .chats-toggle-btn{display:flex}
+            .content{max-width:85%}
+            .send-btn{width:44px;height:44px;min-width:44px;font-size:18px}
         }
-        .image-grid{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
-        .image-card{width:100px;border-radius:8px;overflow:hidden;background:#1a1a1a}
-        .image-card img{width:100%;height:80px;object-fit:cover}
-        iframe{width:100%;height:140px;border-radius:8px;margin-top:6px;border:none}
-        .run-btn{background:#2a2a2a;border:none;border-radius:20px;padding:4px 12px;margin-top:8px;color:#fff;font-size:12px;cursor:pointer}
-        .run-btn:hover{background:#7c3eff}
-        .auth-container{max-width:400px;width:90%;margin:0 auto;background:#0f0f0f;border-radius:32px;padding:32px;text-align:center;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%)}
-        .auth-container input{width:100%;background:#111;border:1px solid #222;border-radius:24px;padding:14px;margin:10px 0;color:#fff;font-size:16px}
-        .auth-container button{width:100%;padding:14px;margin-top:10px;background:#7c3eff;border:none;border-radius:24px;color:#fff;font-weight:600;cursor:pointer}
-        .error{color:#ff4444;font-size:12px;margin-top:8px}
-        .tab-buttons{display:flex;gap:10px;margin:20px 0}
-        .tab-btn{flex:1;padding:10px;border-radius:40px;border:none;cursor:pointer;font-size:14px}
-        .tab-btn.active{background:#7c3eff;color:#fff}
-        .tab-btn:not(.active){background:#2a2a2a;color:#aaa}
+        .chats-toggle-btn{display:none}
+        
+        .api-modal{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.9);z-index:200;display:flex;align-items:center;justify-content:center}
+        .api-modal-content{background:#0f0f0f;border-radius:32px;padding:32px;max-width:500px;width:90%;text-align:center}
+        .api-key-display{background:#0a0a0a;padding:16px;border-radius:16px;font-family:monospace;font-size:12px;word-break:break-all;border:1px solid #7c3eff;margin:20px 0}
     </style>
 </head>
 <body>
 <div id="app"></div>
+
 <script>
 (function(){
     let users=[], currentUser=null, currentChatId=null, chats=[];
-    const BOT_ID='bot_mindforge', BOT_NAME='MindForge', TG='https://t.me/MindForgeAITelegram';
-    let isProcessing=false;
-
-    window.runHTML = function(code) {
-        let win = window.open();
-        win.document.write(code);
-        win.document.close();
-    };
-
-    function escapeHtml(str){
-        return str.replace(/[&<>]/g, function(m){
-            if(m==='&') return '&amp;';
-            if(m==='<') return '&lt;';
-            if(m==='>') return '&gt;';
-            return m;
-        });
-    }
-
-    function getJoke(){
-        let j=["Почему программисты не любят природу? Слишком много багов.","Что говорит один бит другому? 'Дополни меня!'","Почему 0.1+0.2 в JS не равно 0.3? Потому что математика — ложь.","Как программист ловит рыбу? Кидает в воду исключение.","Сколько программистов нужно, чтобы заменить лампочку? Ни одного — это аппаратная проблема.","Что сказал SQL базе? 'Ты мне нравишься, SELECT * FROM hearts WHERE love=1'"];
-        return j[Math.floor(Math.random()*j.length)];
-    }
-
-    async function searchImages(q){
-        let u=encodeURIComponent(q);
-        try{
-            let r=await fetch(`https://pixabay.com/api/?key=46528406-7a3f6e6f5a6f5a6f5a6f5a6f&q=${u}&image_type=photo&per_page=6`);
-            let d=await r.json();
-            if(d.hits&&d.hits.length){
-                let html=`<div class="image-grid">`;
-                for(let img of d.hits.slice(0,6)) html+=`<div class="image-card"><img src="${img.webformatURL}" loading="lazy"><a href="${img.pageURL}" target="_blank">pix</a></div>`;
-                return html+`</div><a href="https://pixabay.com/images/search/${u}/" target="_blank">🔍 Больше</a>`;
-            }
-        }catch(e){}
-        return `<a href="https://unsplash.com/s/photos/${u}" target="_blank">🔍 ${q}</a>`;
-    }
-
-    function youtubeSearch(q){
-        let u=encodeURIComponent(q);
-        return `<a href="https://www.youtube.com/results?search_query=${u}" target="_blank">🎬 ${q}</a><iframe src="https://www.youtube.com/embed?listType=search&list=${u}"></iframe>`;
-    }
-
-    function getHTMLCode(topic){
-        let t=topic.toLowerCase();
-        if(t.includes('космос')||t.includes('space')){
-            return ko;
-        }
-        return ko;
-    }
-
-    async function getAIResponse(msg, lang){
-        let m=msg.toLowerCase();
-        
-        if(m.includes('шутк')||m.includes('анекдот')) return getJoke();
-        
-        if(m.includes('напиши html')||m.includes('сделай html')||m.includes('html страницу')){
-            let topic=msg.replace(/напиши html|сделай html|html страницу/gi,'').trim()||'пример';
-            let htmlCode=getHTMLCode(topic);
-            let escaped=escapeHtml(htmlCode);
-            return '<pre><code class="language-html">'+escaped+'</code></pre><button class="run-btn" onclick="runHTML(`'+htmlCode.replace(/`/g, '\\`')+'`)">▶ Запустить HTML</button>';
-        }
-        
-        if(m.match(/(?:напиши|сделай)\s+код/)){
-            let code='def factorial(n):\n    return 1 if n<=1 else n*factorial(n-1)\nprint(factorial(5))';
-            return '<pre><code class="language-python">'+escapeHtml(code)+'</code></pre>';
-        }
-        
-        if(m.includes('нарисуй')||m.includes('покажи картинк')){
-            let query=msg.replace(/нарисуй|покажи|картинк|фото/gi,'').trim()||'кот';
-            return await searchImages(query);
-        }
-        
-        if(m.includes('музык')||m.includes('песн')){
-            let query=msg.replace(/музык|песн|включи/gi,'').trim();
-            return youtubeSearch(query+" music");
-        }
-        
-        if(/[\d+\-*/%√^]/.test(m)&&(/\d/.test(m)||/√/.test(m))){
-            try{
-                let s=m.replace(/√(\d+)/g,'Math.sqrt($1)').replace(/\^/g,'**');
-                let r=Function('return ('+s+')')();
-                if(typeof r==='number') return r.toString();
-            }catch(e){}
-        }
-        
-        if(m.includes('кто ты')||m.includes('что ты умеешь')||m.includes('твои возможности')){
-            return `🧠 **MindForge — твой умный AI ассистент**
-
-📋 **Что я умею:**
-
-• 💬 **Общаться** — просто говори со мной
-• 🖼️ **Искать картинки** — "нарисуй кота", "покажи закат"
-• 🎵 **Музыка** — "включи музыку queen"
-• 🎬 **Видео** — "включи видео смешные коты"
-• 💻 **Писать код** — "напиши код на python факториал"
-• 🧮 **Калькулятор** — "√49 + 5^2"
-• 😂 **Шутки** — "расскажи шутку"
-• 📝 **HTML страницы** — "напиши html с космосом"
-• 🔍 **Поиск** — задай любой вопрос
-
-📢 **Больше информации в Telegram:** ${TG}
-
-Чем могу помочь? 🔥`;
-        }
-        
-        if(m.includes('привет')||m.includes('здравствуй')) return "Привет! 😊 Как дела? Спроси \"что ты умеешь\" чтобы узнать мои возможности.";
-        if(m.includes('как дела')) return "Норм! А у тебя?";
-        if(m.includes('спасибо')) return "Пожалуйста! 🙌 Подписывайся на Telegram: "+TG;
-        if(m.includes('пока')) return "Пока! 👋 Заходи ещё!";
-        
-        if(m.includes('факт')||m.includes('интересно')){
-            let facts=["💧 Вода расширяется при замерзании.","🌌 Во Вселенной больше звёзд, чем песчинок.","🧠 Мозг генерирует 20 ватт.","🐙 Осьминог — 3 сердца, голубая кровь."];
-            return facts[Math.floor(Math.random()*facts.length)]+"\n\nХочешь ещё факт? Просто спроси!";
-        }
-        
-        if(m.includes('квант')) return "Квантовая механика: суперпозиция, запутанность. На этом основаны лазеры и квантовые компьютеры.";
-        if(m.includes('черн')&&m.includes('дыр')) return "Чёрные дыры — области с огромной гравитацией, откуда даже свет не вырывается.";
-        if(m.includes('днк')) return "ДНК человека на 50% совпадает с ДНК банана!";
-        
-        return lang==='ru'?"🤔 Расскажи подробнее, что ты имеешь в виду?":"🤔 Tell me more, what do you mean?";
-    }
-
-    function detectLang(t){
-        let f=t.trim().charAt(0);
-        return (f&&/[\u0400-\u04FF]/.test(f))?'ru':'en';
-    }
-
+    const BOT_ID='bot_mindforge', BOT_NAME='MindForge AI';
+    
+    // ============ ТВОЙ API КЛЮЧ ============
+    const OPENROUTER_KEY = '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';
+    
+    function showToast(msg){const t=document.createElement('div');t.className='toast';t.textContent=msg;document.body.appendChild(t);setTimeout(()=>t.remove(),3000);}
+    function generateApiKey(email){return 'MF_'+btoa(email+':'+Date.now()).substring(0,24)+'_'+Math.random().toString(36).substring(2,10);}
+    
     function loadData(){
         try{
-            let su=localStorage.getItem('mf_u'); if(su) users=JSON.parse(su);
-            let sc=localStorage.getItem('mf_c'); if(sc) chats=JSON.parse(sc);
-            let scur=localStorage.getItem('mf_cu'); if(scur) currentUser=JSON.parse(scur);
-            if(!users.find(u=>u.id===BOT_ID)){ users.push({id:BOT_ID,name:BOT_NAME,isBot:true}); saveU(); }
+            const su=localStorage.getItem('mindforge_users'); if(su) users=JSON.parse(su);
+            const sc=localStorage.getItem('mindforge_chats'); if(sc) chats=JSON.parse(sc);
+            const scur=localStorage.getItem('mindforge_current'); if(scur) currentUser=JSON.parse(scur);
+            if(!users.find(u=>u.id===BOT_ID)){ users.push({id:BOT_ID,name:BOT_NAME,email:'bot@mindforge.ai',isBot:true}); saveUsers(); }
         }catch(e){}
     }
-    function saveU(){ localStorage.setItem('mf_u',JSON.stringify(users)); }
-    function saveC(){ localStorage.setItem('mf_c',JSON.stringify(chats)); }
-    function saveCU(){ if(currentUser) localStorage.setItem('mf_cu',JSON.stringify(currentUser)); }
-
-    function regUser(name,pass){
-        if(users.find(u=>u.name===name&&!u.isBot)) return {success:false,error:'Имя занято'};
-        let nu={id:Date.now().toString(),name,password:pass};
-        users.push(nu); saveU();
-        return {success:true,user:nu};
+    function saveUsers(){localStorage.setItem('mindforge_users',JSON.stringify(users));}
+    function saveChats(){localStorage.setItem('mindforge_chats',JSON.stringify(chats));}
+    function saveCurrent(){if(currentUser)localStorage.setItem('mindforge_current',JSON.stringify(currentUser));}
+    
+    function registerUser(email,password){
+        if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return {success:false,error:'Введите корректный email'};
+        if(users.find(u=>u.email===email&&!u.isBot)) return {success:false,error:'Email уже зарегистрирован'};
+        if(password.length<3) return {success:false,error:'Пароль не менее 3 символов'};
+        const userId=Date.now().toString(), apiKey=generateApiKey(email), name=email.split('@')[0];
+        const newUser={id:userId,name,email,password,apiKey,createdAt:new Date().toISOString()};
+        users.push(newUser); saveUsers();
+        return {success:true,user:newUser};
     }
-    function loginUser(name,pass){
-        let u=users.find(u=>u.name===name&&u.password===pass&&!u.isBot);
-        return u?{success:true,user:u}:{success:false,error:'Неверно'};
+    function loginUser(email,password){
+        const user=users.find(u=>u.email===email&&u.password===password&&!u.isBot);
+        return user?{success:true,user}:{success:false,error:'Неверный email или пароль'};
     }
-    function newChat(u1,u2){
-        let c={id:Date.now().toString(),user1:u1,user2:u2,messages:[],lastUpdated:Date.now()};
-        chats.push(c); saveC();
-        return c;
-    }
-    function addMsg(cid,txt,isUser){
-        let c=chats.find(c=>c.id===cid);
-        if(c){
-            c.messages.push({text:txt,isUser:isUser,ts:Date.now()});
-            c.lastUpdated=Date.now();
-            saveC();
-            return true;
+    function createChat(u1,u2){const c={id:Date.now().toString(),user1:u1,user2:u2,messages:[],lastUpdated:Date.now()};chats.push(c);saveChats();return c;}
+    function getUser(id){return users.find(u=>u.id===id);}
+    
+    // ============ ТОЛЬКО API, НИКАКИХ ШАБЛОНОВ ============
+    async function getAIResponse(message, history){
+        try{
+            const messages = [
+                { role: 'system', content: 'Ты MindForge AI. Отвечай на русском. Будь полезным.' }
+            ];
+            
+            if(history && history.length > 0){
+                const recent = history.slice(-6);
+                for(const msg of recent){
+                    messages.push({ role: msg.isUser ? 'user' : 'assistant', content: msg.text });
+                }
+            }
+            messages.push({ role: 'user', content: message });
+            
+            const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${OPENROUTER_KEY}`,
+                    'HTTP-Referer': window.location.origin,
+                    'X-Title': 'MindForge AI'
+                },
+                body: JSON.stringify({
+                    model: 'mistralai/mistral-7b-instruct:free',
+                    messages: messages,
+                    max_tokens: 500,
+                    temperature: 0.8
+                })
+            });
+            
+            const data = await response.json();
+            
+            if(!response.ok){
+                console.error('API Error:', data);
+                return `❌ Ошибка API: ${data.error?.message || 'Неизвестная ошибка'}\n\nПроверь API-ключ на https://openrouter.ai/keys`;
+            }
+            
+            if(data && data.choices && data.choices[0] && data.choices[0].message){
+                return data.choices[0].message.content;
+            }
+            
+            return `❌ Ошибка: API вернул неожиданный ответ. Попробуй позже.`;
+            
+        } catch(error){
+            console.error('Network error:', error);
+            return `❌ Ошибка сети: ${error.message}\n\nПроверь интернет-соединение.`;
         }
-        return false;
     }
-    function getUser(id){ return users.find(u=>u.id===id); }
-
+    
+    function addMessage(chatId,text,isUser){
+        const area=document.getElementById('chat-area'); if(!area) return;
+        const div=document.createElement('div'); div.className='message '+(isUser?'user':'ai');
+        div.innerHTML=`<div class="avatar">${isUser?'👤':'🤖'}</div><div class="content">${text.replace(/\n/g,'<br>')}</div>`;
+        area.appendChild(div); area.scrollTop=area.scrollHeight;
+        const item=document.querySelector(`.chat-item[data-chat="${chatId}"]`);
+        if(item){const p=item.querySelector('.chat-preview'); if(p)p.textContent=(isUser?'Вы: ':'')+(text.length>30?text.substring(0,30)+'...':text);}
+    }
+    function showTyping(){const a=document.getElementById('chat-area');if(!a)return;const t=document.createElement('div');t.className='message ai';t.id='typing-indicator';t.innerHTML='<div class="avatar">🤖</div><div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div><span style="margin-left:8px;font-size:12px;color:#888">Отправляю запрос к нейросети...</span></div>';a.appendChild(t);a.scrollTop=a.scrollHeight;}
+    function hideTyping(){const t=document.getElementById('typing-indicator');if(t)t.remove();}
+    async function sendToAI(msg,chatId,history){
+        showTyping();
+        const response=await getAIResponse(msg,history);
+        hideTyping();
+        const chat=chats.find(c=>c.id===chatId);
+        if(chat){chat.messages.push({text:response,isUser:false,timestamp:Date.now()});chat.lastUpdated=Date.now();saveChats();addMessage(chatId,response,false);}
+    }
+    function showApiModal(){
+        const m=document.createElement('div');m.className='api-modal';
+        m.innerHTML=`<div class="api-modal-content"><h3>🔑 Твой API-ключ</h3><div class="api-key-display">${currentUser.apiKey}</div><button id="copyBtn" style="background:#7c3eff;border:none;border-radius:24px;padding:10px 20px;color:#fff;cursor:pointer;margin:5px">📋 Скопировать</button><button id="closeBtn" style="background:#2a2a2a;border:none;border-radius:24px;padding:10px 20px;color:#fff;cursor:pointer;margin:5px">Закрыть</button></div>`;
+        document.body.appendChild(m);
+        document.getElementById('copyBtn').onclick=()=>{navigator.clipboard.writeText(currentUser.apiKey);showToast('✅ Ключ скопирован!');m.remove();};
+        document.getElementById('closeBtn').onclick=()=>m.remove();
+        m.onclick=(e)=>{if(e.target===m)m.remove();};
+    }
+    
     function renderAuth(){
         document.getElementById('app').innerHTML=`
             <div class="auth-container">
-                <div style="width:48px;height:48px;background:linear-gradient(135deg,#7c3eff,#a855f7);border-radius:16px;margin:0 auto 20px;display:flex;align-items:center;justify-content:center"><svg width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M12 3L14 7L18 7.5L15 10L16 14L12 12L8 14L9 10L6 7.5L10 7L12 3Z" fill="white"/><circle cx="12" cy="12" r="2.5" fill="#7c3eff"/></svg></div>
-                <h2>MindForge</h2>
-                <div class="tab-buttons"><button class="tab-btn active" id="showLoginBtn">Вход</button><button class="tab-btn" id="showRegisterBtn">Регистрация</button></div>
-                <div id="loginForm"><input type="text" id="loginName" placeholder="Имя"><input type="password" id="loginPassword" placeholder="Пароль"><button id="loginBtn">Войти</button><div id="loginError" class="error"></div></div>
-                <div id="registerForm" style="display:none"><input type="text" id="regName" placeholder="Имя"><input type="password" id="regPassword" placeholder="Пароль"><input type="password" id="regConfirm" placeholder="Повторите"><button id="registerBtn">Зарегистрироваться</button><div id="regError" class="error"></div></div>
-            </div>`;
-        document.getElementById('showLoginBtn').onclick=()=>{
-            document.getElementById('loginForm').style.display='block';
-            document.getElementById('registerForm').style.display='none';
-            document.getElementById('showLoginBtn').classList.add('active');
-            document.getElementById('showRegisterBtn').classList.remove('active');
-        };
-        document.getElementById('showRegisterBtn').onclick=()=>{
-            document.getElementById('loginForm').style.display='none';
-            document.getElementById('registerForm').style.display='block';
-            document.getElementById('showRegisterBtn').classList.add('active');
-            document.getElementById('showLoginBtn').classList.remove('active');
-        };
-        document.getElementById('loginBtn').onclick=()=>{
-            let n=document.getElementById('loginName').value.trim(),p=document.getElementById('loginPassword').value;
-            if(!n||!p){document.getElementById('loginError').innerText='Заполните поля';return;}
-            let r=loginUser(n,p);
-            if(r.success){currentUser=r.user;saveCU();renderMain();}
-            else document.getElementById('loginError').innerText=r.error;
-        };
-        document.getElementById('registerBtn').onclick=()=>{
-            let n=document.getElementById('regName').value.trim(),p=document.getElementById('regPassword').value,c=document.getElementById('regConfirm').value;
-            if(!n||!p||!c){document.getElementById('regError').innerText='Заполните поля';return;}
-            if(p!==c){document.getElementById('regError').innerText='Пароли не совпадают';return;}
-            if(p.length<3){document.getElementById('regError').innerText='Пароль не менее 3 символов';return;}
-            let r=regUser(n,p);
-            if(r.success){currentUser=r.user;saveCU();renderMain();}
-            else document.getElementById('regError').innerText=r.error;
-        };
+                <div class="logo-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none"><path d="M12 3L14 7L18 7.5L15 10L16 14L12 12L8 14L9 10L6 7.5L10 7L12 3Z" fill="white"/><circle cx="12" cy="12" r="2.5" fill="#7c3eff"/></svg></div>
+                <h2>MindForge AI</h2>
+                <div class="subtitle">🧠 Настоящий ИИ через OpenRouter</div>
+                <div class="tab-buttons"><button class="tab-btn active" id="showLoginBtn">🔐 Вход</button><button class="tab-btn" id="showRegisterBtn">📝 Регистрация</button></div>
+                <div id="loginForm"><input type="email" id="loginEmail" placeholder="Email"><input type="password" id="loginPassword" placeholder="Пароль"><button id="loginBtn">Войти →</button><div id="loginError" class="error"></div></div>
+                <div id="registerForm" style="display:none"><input type="email" id="regEmail" placeholder="Email"><input type="password" id="regPassword" placeholder="Пароль (мин. 3)"><input type="password" id="regConfirm" placeholder="Повторите пароль"><button id="registerBtn">🚀 Зарегистрироваться</button><div id="regError" class="error"></div></div>
+            </div>
+        `;
+        document.getElementById('showLoginBtn').onclick=()=>{document.getElementById('loginForm').style.display='block';document.getElementById('registerForm').style.display='none';document.getElementById('showLoginBtn').classList.add('active');document.getElementById('showRegisterBtn').classList.remove('active');};
+        document.getElementById('showRegisterBtn').onclick=()=>{document.getElementById('loginForm').style.display='none';document.getElementById('registerForm').style.display='block';document.getElementById('showRegisterBtn').classList.add('active');document.getElementById('showLoginBtn').classList.remove('active');};
+        document.getElementById('loginBtn').onclick=()=>{const e=document.getElementById('loginEmail').value.trim(),p=document.getElementById('loginPassword').value;if(!e||!p){document.getElementById('loginError').textContent='Заполните поля';return;}const r=loginUser(e,p);if(r.success){currentUser=r.user;saveCurrent();showToast(`✨ Добро пожаловать, ${currentUser.name}!`);renderMain();}else document.getElementById('loginError').textContent=r.error;};
+        document.getElementById('registerBtn').onclick=()=>{const e=document.getElementById('regEmail').value.trim(),p=document.getElementById('regPassword').value,c=document.getElementById('regConfirm').value;if(!e||!p||!c){document.getElementById('regError').textContent='Заполните поля';return;}if(p!==c){document.getElementById('regError').textContent='Пароли не совпадают';return;}const r=registerUser(e,p);if(r.success){currentUser=r.user;saveCurrent();showToast(`🎉 Регистрация успешна!`);renderMain();}else document.getElementById('regError').textContent=r.error;};
     }
-
-    let globalSendHandler = null;
-
+    
     function renderMain(){
-        let userChats=[...chats].filter(c=>c.user1===currentUser.id||c.user2===currentUser.id).sort((a,b)=>b.lastUpdated-a.lastUpdated);
-        let bot=users.find(u=>u.id===BOT_ID);
+        let userChats=chats.filter(c=>c.user1===currentUser.id||c.user2===currentUser.id).sort((a,b)=>b.lastUpdated-a.lastUpdated);
+        const bot=users.find(u=>u.id===BOT_ID);
+        if(!userChats.find(c=>(c.user1===currentUser.id&&c.user2===BOT_ID)||(c.user2===currentUser.id&&c.user1===BOT_ID))){const nc=createChat(currentUser.id,bot.id);userChats.unshift(nc);currentChatId=nc.id;}
+        if(!currentChatId&&userChats.length>0)currentChatId=userChats[0].id;
+        
         document.getElementById('app').innerHTML=`
             <div class="app-container">
                 <div class="sidebar-overlay" id="sidebarOverlay"></div>
@@ -288,140 +233,59 @@
                 </div>
                 <div class="main">
                     <div class="header">
-                        <div class="logo"><div class="logo-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 3L14 7L18 7.5L15 10L16 14L12 12L8 14L9 10L6 7.5L10 7L12 3Z" fill="white"/><circle cx="12" cy="12" r="2.5" fill="#7c3eff"/></svg></div><div class="logo-text">MindForge</div></div>
-                        <div class="user-info"><div class="user-name">${currentUser.name}</div><button class="logout-btn" id="logoutBtn">🚪</button></div>
+                        <div class="logo"><div class="logo-icon-small"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 3L14 7L18 7.5L15 10L16 14L12 12L8 14L9 10L6 7.5L10 7L12 3Z" fill="white"/><circle cx="12" cy="12" r="2.5" fill="#7c3eff"/></svg></div><div class="logo-text">MindForge AI</div></div>
+                        <div class="user-info"><div class="user-name">${currentUser.name}</div><div class="api-badge" id="showApiBtn">🔑 API</div><button class="logout-btn" id="logoutBtn">🚪</button></div>
                     </div>
-                    <div class="chat-area" id="chatArea"></div>
+                    <div class="chat-area" id="chat-area"></div>
                     <div class="input-area">
                         <div class="input-wrapper">
-                            <textarea id="msgInput" rows="1" placeholder=""></textarea>
-                            <button id="sendMsgBtn">→</button>
+                            <textarea id="msgInput" rows="1" placeholder="Спроси меня о чём угодно..."></textarea>
+                            <button class="send-btn" id="sendMsgBtn">→</button>
                         </div>
                     </div>
                 </div>
             </div>
-            <button class="chats-toggle-btn" id="chatsToggleBtn">💬</button>`;
+            <button class="chats-toggle-btn" id="chatsToggleBtn">💬</button>
+        `;
         
-        let sidebar=document.getElementById('sidebar'), overlay=document.getElementById('sidebarOverlay'), toggle=document.getElementById('chatsToggleBtn');
-        let closeSidebar=()=>{ sidebar.classList.remove('open'); overlay.classList.remove('open'); };
-        let openSidebar=()=>{ sidebar.classList.add('open'); overlay.classList.add('open'); };
-        if(toggle) toggle.onclick=()=>{ if(sidebar.classList.contains('open')) closeSidebar(); else openSidebar(); };
-        if(overlay) overlay.onclick=closeSidebar;
+        const sidebar=document.getElementById('sidebar'),overlay=document.getElementById('sidebarOverlay'),toggle=document.getElementById('chatsToggleBtn');
+        if(toggle)toggle.onclick=()=>{sidebar.classList.toggle('open');overlay.classList.toggle('open');};
+        if(overlay)overlay.onclick=()=>{sidebar.classList.remove('open');overlay.classList.remove('open');};
         
-        let chatsList=document.getElementById('chatsList');
+        const chatsList=document.getElementById('chatsList');
         if(chatsList){
-            chatsList.innerHTML=userChats.map(chat=>{
-                let oid=chat.user1===currentUser.id?chat.user2:chat.user1;
-                let other=getUser(oid);
-                let isBot=other?.id===BOT_ID;
-                let last=chat.messages[chat.messages.length-1];
-                return `<div class="chat-item ${currentChatId===chat.id?'active':''}" data-chat="${chat.id}">
-                            <div class="chat-name">${other?.name||'Пользователь'} ${isBot?'🤖':''}</div>
-                            <div class="chat-preview">${last?(last.isUser?'Вы: ':'')+last.text.substring(0,30):'Новый чат'}</div>
-                            <button class="delete-chat" data-chat="${chat.id}">✕</button>
-                        </div>`;
-            }).join('');
-            if(userChats.length===0) chatsList.innerHTML='<div style="padding:20px;text-align:center;color:#666">Нет чатов</div>';
-            document.querySelectorAll('.chat-item').forEach(el=>{
-                el.addEventListener('click',(e)=>{
-                    if(e.target.classList.contains('delete-chat')) return;
-                    let id=el.dataset.chat;
-                    if(id){ currentChatId=id; renderMain(); }
-                });
-                let del=el.querySelector('.delete-chat');
-                if(del) del.addEventListener('click',(e)=>{
-                    e.stopPropagation();
-                    let id=del.dataset.chat;
-                    chats=chats.filter(c=>c.id!==id);
-                    if(currentChatId===id) currentChatId=null;
-                    saveC();
-                    renderMain();
-                });
-            });
+            chatsList.innerHTML=userChats.map(chat=>{const oid=chat.user1===currentUser.id?chat.user2:chat.user1;const other=getUser(oid);const isBot=other&&other.id===BOT_ID;const last=chat.messages[chat.messages.length-1];const preview=last?(last.isUser?'Вы: ':'')+(last.text.length>30?last.text.substring(0,30)+'...':last.text):'Новый чат';return `<div class="chat-item ${currentChatId===chat.id?'active':''}" data-chat="${chat.id}"><div class="chat-name">${other?other.name:'Пользователь'} ${isBot?'🤖':''}</div><div class="chat-preview">${preview}</div><button class="delete-chat" data-chat="${chat.id}">✕</button></div>`;}).join('');
+            document.querySelectorAll('.chat-item').forEach(el=>{el.addEventListener('click',(e)=>{if(e.target.classList.contains('delete-chat'))return;const id=el.dataset.chat;if(id){currentChatId=id;renderMain();}});const del=el.querySelector('.delete-chat');if(del)del.addEventListener('click',(e)=>{e.stopPropagation();const id=del.dataset.chat;chats=chats.filter(c=>c.id!==id);if(currentChatId===id)currentChatId=userChats.find(c=>c.id!==id)?.id||null;saveChats();renderMain();});});
         }
         
-        let chatArea=document.getElementById('chatArea');
-        if(chatArea){
-            if(currentChatId){
-                let chat=chats.find(c=>c.id===currentChatId);
-                if(chat){
-                    let oid=chat.user1===currentUser.id?chat.user2:chat.user1;
-                    let other=getUser(oid);
-                    let isBot=other?.id===BOT_ID;
-                    let messagesHtml=`<div style="padding:8px;border-bottom:1px solid #222;margin-bottom:12px"><strong>${other?.name} ${isBot?'🤖':''}</strong></div>`;
-                    for(let m of chat.messages){
-                        messagesHtml+=`<div class="message ${m.isUser?'user':'ai'}">
-                                        <div class="avatar">${m.isUser?'👤':(isBot?'🤖':'⚡')}</div>
-                                        <div class="content">${m.text.replace(/\n/g,'<br>')}</div>
-                                    </div>`;
-                    }
-                    chatArea.innerHTML=messagesHtml;
-                    chatArea.scrollTop=chatArea.scrollHeight;
-                } else { chatArea.innerHTML='<div style="text-align:center;color:#666;margin-top:50px">Выберите чат</div>'; }
-            } else { chatArea.innerHTML='<div style="text-align:center;color:#666;margin-top:50px">Выберите чат</div>'; }
-        }
+        const chatArea=document.getElementById('chat-area');
+        if(chatArea&&currentChatId){const chat=chats.find(c=>c.id===currentChatId);if(chat){chatArea.innerHTML='';for(const msg of chat.messages){const div=document.createElement('div');div.className=`message ${msg.isUser?'user':'ai'}`;div.innerHTML=`<div class="avatar">${msg.isUser?'👤':'🤖'}</div><div class="content">${msg.text.replace(/\n/g,'<br>')}</div>`;chatArea.appendChild(div);}chatArea.scrollTop=chatArea.scrollHeight;}}
         
-        let newBtn=document.getElementById('newChatBtn');
-        if(newBtn) newBtn.onclick=()=>{
-            if(bot){
-                let nc=newChat(currentUser.id,bot.id);
-                currentChatId=nc.id;
-                renderMain();
-            }
-        };
+        document.getElementById('newChatBtn').onclick=()=>{const nc=createChat(currentUser.id,bot.id);currentChatId=nc.id;renderMain();};
+        document.getElementById('logoutBtn').onclick=()=>{currentUser=null;currentChatId=null;localStorage.removeItem('mindforge_current');renderAuth();};
+        document.getElementById('showApiBtn').onclick=showApiModal;
         
-        let logoutBtn=document.getElementById('logoutBtn');
-        if(logoutBtn) logoutBtn.onclick=()=>{
-            currentUser=null;
-            currentChatId=null;
-            localStorage.removeItem('mf_cu');
-            renderAuth();
-        };
-        
-        let input=document.getElementById('msgInput');
-        let sendBtn=document.getElementById('sendMsgBtn');
-        
-        if(globalSendHandler && sendBtn) sendBtn.removeEventListener('click', globalSendHandler);
-        
+        const input=document.getElementById('msgInput'),sendBtn=document.getElementById('sendMsgBtn');let isSending=false;
         async function sendMessage(){
-            let text=input.value.trim();
-            if(!text||!currentChatId||isProcessing) return;
-            isProcessing=true;
-            if(sendBtn) sendBtn.disabled=true;
-            addMsg(currentChatId,text,true);
-            renderMain();
-            
-            let chat=chats.find(c=>c.id===currentChatId);
-            let oid=chat.user1===currentUser.id?chat.user2:chat.user1;
-            let other=getUser(oid);
-            if(other?.id===BOT_ID){
-                let lang=detectLang(text);
-                let reply=await getAIResponse(text,lang);
-                addMsg(currentChatId,reply,false);
-                renderMain();
-            }
-            input.value='';
-            isProcessing=false;
-            if(sendBtn) sendBtn.disabled=false;
-            input.focus();
+            const text=input.value.trim();
+            if(!text||!currentChatId||isSending)return;
+            isSending=true;
+            sendBtn.disabled=true;
+            const chat=chats.find(c=>c.id===currentChatId);
+            const history=chat?chat.messages.slice(-6):[];
+            if(chat){chat.messages.push({text:text,isUser:true,timestamp:Date.now()});chat.lastUpdated=Date.now();saveChats();addMessage(currentChatId,text,true);}
+            input.value='';input.style.height='auto';
+            await sendToAI(text,currentChatId,history);
+            isSending=false;sendBtn.disabled=false;input.focus();
         }
-        
-        globalSendHandler = sendMessage;
-        if(sendBtn) sendBtn.addEventListener('click', globalSendHandler);
-        if(input){
-            input.onkeydown = (e)=>{
-                if(e.key==='Enter'&&!e.shiftKey&&!isProcessing){
-                    e.preventDefault();
-                    sendMessage();
-                }
-            };
-            input.focus();
-        }
+        sendBtn.onclick=sendMessage;
+        input.onkeydown=(e)=>{if(e.key==='Enter'&&!e.shiftKey&&!isSending){e.preventDefault();sendMessage();}};
+        input.oninput=function(){this.style.height='auto';this.style.height=Math.min(this.scrollHeight,100)+'px';};
+        input.focus();
     }
-
+    
     loadData();
-    if(currentUser) renderMain();
-    else renderAuth();
+    if(currentUser) renderMain(); else renderAuth();
 })();
 </script>
 </body>
