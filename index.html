@@ -2,518 +2,160 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MindForge AI</title>
     <style>
         *{margin:0;padding:0;box-sizing:border-box}
-        body{background:#0a0a0a;font-family:system-ui,sans-serif;color:#fff;height:100vh;overflow:hidden}
-        
-        @keyframes fadeIn{from{opacity:0;transform:scale(0.95)}to{opacity:1;transform:scale(1)}}
-        @keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
-        @keyframes messageIn{from{opacity:0;transform:translateX(-20px)}to{opacity:1;transform:translateX(0)}}
-        @keyframes pulse{0%,100%{box-shadow:0 0 0 0 #7c3eff80}50%{box-shadow:0 0 0 3px #7c3eff40}}
-        @keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
-        
-        .auth-container{max-width:420px;width:90%;background:#0f0f0f;border-radius:40px;padding:40px;text-align:center;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);border:1px solid #222;animation:fadeIn 0.3s ease}
-        .logo-icon{width:60px;height:60px;background:linear-gradient(135deg,#7c3eff,#a855f7);border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;animation:pulse 2s infinite}
-        h2{font-size:28px;margin-bottom:8px;background:linear-gradient(135deg,#fff,#a855f7);background-clip:text;-webkit-background-clip:text;color:transparent}
-        .subtitle{color:#888;margin-bottom:24px;font-size:14px}
-        .tab-buttons{display:flex;gap:12px;margin-bottom:24px}
-        .tab-btn{flex:1;padding:12px;border-radius:40px;border:none;cursor:pointer;font-size:14px;font-weight:500;transition:all 0.2s}
-        .tab-btn.active{background:linear-gradient(135deg,#7c3eff,#a855f7);color:#fff}
-        .tab-btn:not(.active){background:#2a2a2a;color:#aaa}
-        input{width:100%;background:#111;border:1px solid #222;border-radius:28px;padding:14px 18px;margin:10px 0;color:#fff;font-size:16px;outline:none;transition:all 0.2s}
-        input:focus{border-color:#7c3eff;box-shadow:0 0 0 2px #7c3eff20}
-        button{width:100%;padding:14px;margin-top:10px;background:linear-gradient(135deg,#7c3eff,#a855f7);border:none;border-radius:28px;color:#fff;font-weight:600;cursor:pointer;transition:all 0.2s}
-        button:hover{transform:scale(1.02)}
-        .error{color:#ff4444;font-size:12px;margin-top:8px}
-        .success{color:#00ff88;font-size:12px;margin-top:8px}
-        
-        .app-container{display:flex;width:100%;height:100vh}
-        .sidebar{width:280px;background:#0f0f0f;border-right:1px solid #222;display:flex;flex-direction:column;transition:transform 0.3s ease}
-        .sidebar-header{padding:20px 16px;border-bottom:1px solid #222}
-        .new-chat-btn{width:100%;background:linear-gradient(135deg,#7c3eff,#a855f7);border:none;border-radius:40px;padding:12px;color:#fff;font-weight:600;cursor:pointer;transition:all 0.2s}
-        .new-chat-btn:hover{transform:scale(1.02)}
-        .chats-list{flex:1;overflow-y:auto;padding:8px}
-        .chat-item{padding:12px;border-radius:12px;margin-bottom:4px;cursor:pointer;background:#111;border:1px solid #222;position:relative;transition:all 0.2s}
-        .chat-item:hover{background:#1a1a1a;border-color:#7c3eff40}
-        .chat-item.active{border-color:#7c3eff;background:#1a1a1a}
-        .chat-name{font-size:14px;font-weight:500;padding-right:24px}
-        .chat-preview{font-size:11px;color:#888}
-        .delete-chat{position:absolute;top:12px;right:12px;background:none;border:none;color:#666;cursor:pointer;font-size:14px}
-        .delete-chat:hover{color:#ff4444}
-        .main{flex:1;display:flex;flex-direction:column;overflow:hidden}
-        .header{padding:12px 24px;border-bottom:1px solid #222;display:flex;justify-content:space-between;align-items:center}
-        .logo{display:flex;align-items:center;gap:12px}
-        .logo-icon-small{width:36px;height:36px;background:linear-gradient(135deg,#7c3eff,#a855f7);border-radius:10px;display:flex;align-items:center;justify-content:center}
-        .logo-text{font-size:20px;font-weight:700;background:linear-gradient(135deg,#fff,#a855f7);background-clip:text;-webkit-background-clip:text;color:transparent}
-        .user-info{display:flex;align-items:center;gap:12px;background:#111;padding:6px 16px;border-radius:40px}
-        .user-name{font-size:14px}
-        .api-badge{background:#7c3eff20;padding:4px 10px;border-radius:20px;font-size:10px;font-family:monospace;cursor:pointer;border:1px solid #7c3eff40;transition:all 0.2s}
-        .api-badge:hover{background:#7c3eff40;transform:scale(1.05)}
-        .logout-btn{background:#2a2a2a;border:none;border-radius:40px;padding:6px 14px;color:#fff;cursor:pointer;transition:all 0.2s}
-        .logout-btn:hover{background:#ff4444}
-        .chat-area{flex:1;overflow-y:auto;padding:24px;display:flex;flex-direction:column;gap:16px}
-        .message{display:flex;gap:12px;animation:messageIn 0.2s ease}
-        .avatar{width:36px;height:36px;border-radius:36px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-        .user .avatar{background:linear-gradient(135deg,#7c3eff,#a855f7)}
+        body{background:#0a0a0a;font-family:system-ui,sans-serif;color:#fff;height:100vh}
+        .container{display:flex;flex-direction:column;height:100vh;max-width:800px;margin:0 auto}
+        .header{padding:20px;text-align:center;border-bottom:1px solid #222}
+        .logo{font-size:24px;font-weight:700;background:linear-gradient(135deg,#fff,#a855f7);background-clip:text;-webkit-background-clip:text;color:transparent}
+        .messages{flex:1;overflow-y:auto;padding:20px}
+        .message{display:flex;gap:10px;margin-bottom:12px}
+        .avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+        .user .avatar{background:#7c3eff}
         .ai .avatar{background:#2a2a2a;border:1px solid #7c3eff}
-        .content{background:#111;padding:12px 16px;border-radius:20px;max-width:75%;font-size:14px;line-height:1.5;border:0.5px solid #222;white-space:pre-wrap;word-wrap:break-word}
-        
-        .input-area{padding:20px 24px;border-top:1px solid #222;background:#0a0a0a}
-        .input-wrapper{display:flex;gap:12px;align-items:flex-end}
-        textarea{flex:1;background:#111;border:1px solid #222;border-radius:28px;padding:14px 18px;color:#fff;font-family:inherit;resize:none;outline:none;font-size:15px;line-height:1.5;max-height:120px;min-height:48px;transition:all 0.2s}
-        textarea:focus{border-color:#7c3eff;box-shadow:0 0 0 2px #7c3eff20}
-        .send-btn{background:linear-gradient(135deg,#7c3eff,#a855f7);border:none;border-radius:40px;width:48px;height:48px;min-width:48px;color:#fff;font-size:20px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.2s}
-        .send-btn:hover{transform:scale(1.05);filter:brightness(1.1)}
-        .send-btn:disabled{opacity:0.5;transform:none}
-        
-        .typing-indicator{display:flex;gap:6px;padding:12px 16px;background:#111;border-radius:24px;width:fit-content}
-        .typing-dot{width:8px;height:8px;background:#7c3eff;border-radius:50%;animation:bounce 1s infinite}
-        .typing-dot:nth-child(2){animation-delay:0.2s}
-        .typing-dot:nth-child(3){animation-delay:0.4s}
-        .toast{position:fixed;bottom:20px;right:20px;background:#7c3eff;color:#fff;padding:12px 20px;border-radius:12px;font-size:14px;z-index:300;animation:slideUp 0.3s ease}
-        
-        @media(max-width:700px){
-            .sidebar{position:fixed;left:-280px;top:0;bottom:0;z-index:100}
-            .sidebar.open{left:0}
-            .chats-toggle-btn{display:flex;position:fixed;bottom:20px;left:20px;background:#7c3eff;border:none;border-radius:40px;padding:14px 18px;cursor:pointer;z-index:100}
-            .sidebar-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:99}
-            .sidebar-overlay.open{display:block}
-            .content{max-width:85%}
-            .send-btn{width:44px;height:44px;min-width:44px;font-size:18px}
-            textarea{font-size:14px;padding:12px 16px}
-        }
-        .chats-toggle-btn{display:none}
-        
-        .api-modal{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.9);z-index:200;display:flex;align-items:center;justify-content:center;animation:fadeIn 0.2s ease}
-        .api-modal-content{background:#0f0f0f;border-radius:32px;padding:32px;max-width:500px;width:90%;text-align:center;animation:slideUp 0.2s ease}
-        .api-key-display{background:#0a0a0a;padding:16px;border-radius:16px;font-family:monospace;font-size:12px;word-break:break-all;border:1px solid #7c3eff;margin:20px 0}
+        .content{background:#111;padding:10px 14px;border-radius:18px;max-width:70%}
+        .input-area{padding:20px;border-top:1px solid #222}
+        .input-wrapper{display:flex;gap:10px}
+        input{flex:1;background:#111;border:1px solid #222;border-radius:28px;padding:12px 18px;color:#fff;font-size:14px;outline:none}
+        button{background:#7c3eff;border:none;border-radius:28px;padding:0 20px;color:#fff;font-weight:600;cursor:pointer}
+        .typing{display:flex;gap:4px;padding:10px}
+        .dot{width:6px;height:6px;background:#7c3eff;border-radius:50%;animation:bounce 1s infinite}
+        @keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+        .status{font-size:10px;color:#888;text-align:center;padding:5px}
     </style>
 </head>
 <body>
 <div id="app"></div>
 
 <script>
-(function(){
-    let users = [];
-    let currentUser = null;
-    let currentChatId = null;
-    let chats = [];
-    const BOT_ID = 'bot_mindforge';
-    const BOT_NAME = 'MindForge AI';
-    
-    // ============================================
-    // 🔑 ТВОЙ API-КЛЮЧ (ПРАВИЛЬНО ВСТАВЛЕН)
-    // ============================================
-    const OPENROUTER_KEY = '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';
-    // ============================================
-    
-    function showToast(msg) {
-        const toast = document.createElement('div');
-        toast.className = 'toast';
-        toast.textContent = msg;
-        document.body.appendChild(toast);
-        setTimeout(() => toast.remove(), 3000);
+// ============================================
+// 🔑 ТВОЙ КЛЮЧ (ВСТАВЛЕН ПРАВИЛЬНО, В КАВЫЧКАХ)
+//    Срок действия: бессрочный
+// ============================================
+const OPENROUTER_KEY = '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';
+// ============================================
+
+let messages = [];
+let requestCount = 0;
+
+async function getAIResponse(message) {
+    if (requestCount >= 20) {
+        return "⏳ **Лимит 20 запросов в минуту.** Подожди немного.";
     }
     
-    function generateApiKey(email) {
-        return 'MF_' + btoa(email + ':' + Date.now()).substring(0, 24) + '_' + Math.random().toString(36).substring(2, 10);
-    }
-    
-    function loadData() {
-        try {
-            const su = localStorage.getItem('mindforge_users');
-            if (su) users = JSON.parse(su);
-            const sc = localStorage.getItem('mindforge_chats');
-            if (sc) chats = JSON.parse(sc);
-            const scur = localStorage.getItem('mindforge_current');
-            if (scur) currentUser = JSON.parse(scur);
-            if (!users.find(u => u.id === BOT_ID)) {
-                users.push({ id: BOT_ID, name: BOT_NAME, email: 'bot@mindforge.ai', isBot: true });
-                saveUsers();
-            }
-        } catch(e) { console.log(e); }
-    }
-    
-    function saveUsers() { localStorage.setItem('mindforge_users', JSON.stringify(users)); }
-    function saveChats() { localStorage.setItem('mindforge_chats', JSON.stringify(chats)); }
-    function saveCurrent() { if (currentUser) localStorage.setItem('mindforge_current', JSON.stringify(currentUser)); }
-    
-    function registerUser(email, password) {
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return { success: false, error: '❌ Введите корректный email' };
-        if (users.find(u => u.email === email && !u.isBot)) return { success: false, error: '❌ Email уже зарегистрирован' };
-        if (password.length < 3) return { success: false, error: '❌ Пароль не менее 3 символов' };
-        const userId = Date.now().toString();
-        const apiKey = generateApiKey(email);
-        const name = email.split('@')[0];
-        const newUser = { id: userId, name, email, password, apiKey, createdAt: new Date().toISOString() };
-        users.push(newUser);
-        saveUsers();
-        return { success: true, user: newUser };
-    }
-    
-    function loginUser(email, password) {
-        const user = users.find(u => u.email === email && u.password === password && !u.isBot);
-        if (user) {
-            if (!user.apiKey) {
-                user.apiKey = generateApiKey(email);
-                saveUsers();
-            }
-            return { success: true, user };
-        }
-        return { success: false, error: '❌ Неверный email или пароль' };
-    }
-    
-    function createChat(user1Id, user2Id) {
-        const chat = { id: Date.now().toString(), user1: user1Id, user2: user2Id, messages: [], lastUpdated: Date.now() };
-        chats.push(chat);
-        saveChats();
-        return chat;
-    }
-    
-    function getUser(id) { return users.find(u => u.id === id); }
-    
-    // ============ НАСТОЯЩИЙ ИИ ЧЕРЕЗ OPENROUTER ============
-    async function getAIResponse(message, history, userName) {
-        try {
-            const messages = [
-                { role: 'system', content: `Ты MindForge AI — дружелюбный, умный ассистент. Ты общаешься с пользователем ${userName} на русском языке. Отвечай кратко, по делу, естественно, развёрнуто.` }
-            ];
-            
-            if (history && history.length > 0) {
-                const recent = history.slice(-8);
-                for (const msg of recent) {
-                    messages.push({ role: msg.isUser ? 'user' : 'assistant', content: msg.text });
-                }
-            }
-            
-            messages.push({ role: 'user', content: message });
-            
-            const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${OPENROUTER_KEY}`,
-                    'HTTP-Referer': window.location.origin,
-                    'X-Title': 'MindForge AI'
-                },
-                body: JSON.stringify({
-                    model: 'mistralai/mistral-7b-instruct:free',
-                    messages: messages,
-                    max_tokens: 600,
-                    temperature: 0.8
-                })
-            });
-            
-            const data = await response.json();
-            
-            if (!response.ok) {
-                console.error('API Error:', data);
-                if (response.status === 401) return "❌ **Неверный API-ключ!** Проверь ключ на https://openrouter.ai/keys";
-                if (response.status === 429) return "⏳ **Лимит запросов!** Подожди 30 секунд и попробуй снова.";
-                return `❌ Ошибка: ${data.error?.message || 'Неизвестная ошибка'}`;
-            }
-            
-            if (data && data.choices && data.choices[0] && data.choices[0].message) {
-                return data.choices[0].message.content;
-            }
-            
-            return "❌ Неожиданный ответ от сервера. Попробуй ещё раз.";
-            
-        } catch (error) {
-            console.error('Network error:', error);
-            return "🌐 **Ошибка сети!** Проверь интернет-соединение.";
-        }
-    }
-    
-    function addMessage(chatId, text, isUser) {
-        const area = document.getElementById('chat-area');
-        if (!area) return;
-        const div = document.createElement('div');
-        div.className = 'message ' + (isUser ? 'user' : 'ai');
-        div.innerHTML = `<div class="avatar">${isUser ? '👤' : '🤖'}</div><div class="content">${text.replace(/\n/g, '<br>')}</div>`;
-        area.appendChild(div);
-        area.scrollTop = area.scrollHeight;
+    try {
+        requestCount++;
+        setTimeout(() => requestCount--, 60000);
         
-        const item = document.querySelector(`.chat-item[data-chat="${chatId}"]`);
-        if (item) {
-            const preview = item.querySelector('.chat-preview');
-            if (preview) preview.textContent = (isUser ? 'Вы: ' : '') + (text.length > 30 ? text.substring(0, 30) + '...' : text);
+        const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${OPENROUTER_KEY}`,
+                'HTTP-Referer': window.location.origin,
+                'X-Title': 'MindForge AI'
+            },
+            body: JSON.stringify({
+                model: 'mistralai/mistral-7b-instruct:free',
+                messages: [
+                    { role: 'system', content: 'Ты MindForge AI. Отвечай кратко, по-русски, дружелюбно.' },
+                    { role: 'user', content: message }
+                ],
+                max_tokens: 500,
+                temperature: 0.8
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (!response.ok) {
+            if (response.status === 401) {
+                return "❌ **Ключ не работает!** Создай новый ключ на https://openrouter.ai/keys\n\nТвой текущий ключ: " + OPENROUTER_KEY.substring(0, 20) + "...";
+            }
+            if (response.status === 429) {
+                return "⏳ **Лимит запросов OpenRouter.** Подожди 1 минуту.";
+            }
+            return `❌ Ошибка: ${data.error?.message || 'Неизвестная ошибка'}`;
         }
+        
+        return data.choices[0].message.content;
+        
+    } catch(e) {
+        return "🌐 **Ошибка сети!** Проверь интернет.";
     }
+}
+
+function addMessage(text, isUser) {
+    messages.push({ text, isUser });
+    renderMessages();
+}
+
+async function sendMessage() {
+    const input = document.getElementById('msgInput');
+    const text = input.value.trim();
+    if (!text) return;
     
-    function showTyping() {
-        const area = document.getElementById('chat-area');
-        if (!area) return;
-        const typing = document.createElement('div');
-        typing.className = 'message ai';
-        typing.id = 'typing-indicator';
-        typing.innerHTML = `<div class="avatar">🤖</div><div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div><span style="margin-left:8px;font-size:12px;color:#888">MindForge думает...</span></div>`;
-        area.appendChild(typing);
-        area.scrollTop = area.scrollHeight;
-    }
+    input.value = '';
+    addMessage(text, true);
     
-    function hideTyping() {
-        const typing = document.getElementById('typing-indicator');
-        if (typing) typing.remove();
-    }
+    // Индикатор
+    const typingDiv = document.createElement('div');
+    typingDiv.className = 'message ai';
+    typingDiv.id = 'typing';
+    typingDiv.innerHTML = '<div class="avatar">🤖</div><div class="typing"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>';
+    document.getElementById('messages').appendChild(typingDiv);
+    document.getElementById('messages').scrollTop = document.getElementById('messages').scrollHeight;
     
-    async function sendToAI(message, chatId, userName) {
-        showTyping();
-        const chat = chats.find(c => c.id === chatId);
-        const history = chat ? chat.messages.slice(-8) : [];
-        const response = await getAIResponse(message, history, userName);
-        hideTyping();
-        if (chat) {
-            chat.messages.push({ text: response, isUser: false, timestamp: Date.now() });
-            chat.lastUpdated = Date.now();
-            saveChats();
-            addMessage(chatId, response, false);
-        }
-    }
+    const response = await getAIResponse(text);
     
-    function showApiModal() {
-        const modal = document.createElement('div');
-        modal.className = 'api-modal';
-        modal.innerHTML = `
-            <div class="api-modal-content">
-                <h3>🔑 Твой персональный API-ключ</h3>
-                <p style="color:#888;margin:10px 0">Уникальный ключ для доступа к MindForge AI</p>
-                <div class="api-key-display">${currentUser.apiKey}</div>
-                <button id="copyApiBtn" style="background:#7c3eff;border:none;border-radius:24px;padding:10px 20px;color:#fff;cursor:pointer;margin:5px">📋 Скопировать</button>
-                <button id="closeApiBtn" style="background:#2a2a2a;border:none;border-radius:24px;padding:10px 20px;color:#fff;cursor:pointer;margin:5px">Закрыть</button>
-                <p style="font-size:11px;color:#666;margin-top:15px">✨ Используй этот ключ для интеграции с MindForge AI</p>
+    document.getElementById('typing')?.remove();
+    addMessage(response, false);
+}
+
+function renderMessages() {
+    const container = document.getElementById('messages');
+    if (!container) return;
+    
+    container.innerHTML = messages.map(msg => `
+        <div class="message ${msg.isUser ? 'user' : 'ai'}">
+            <div class="avatar">${msg.isUser ? '👤' : '🤖'}</div>
+            <div class="content">${msg.text.replace(/\n/g, '<br>')}</div>
+        </div>
+    `).join('');
+    container.scrollTop = container.scrollHeight;
+}
+
+function renderMain() {
+    document.getElementById('app').innerHTML = `
+        <div class="container">
+            <div class="header">
+                <div class="logo">🧠 MindForge AI</div>
+                <div class="status">🔑 Ключ: ${OPENROUTER_KEY.substring(0, 15)}... | ⏰ Срок: бессрочный | ⚡ 20 запросов/мин</div>
             </div>
-        `;
-        document.body.appendChild(modal);
-        document.getElementById('copyApiBtn').onclick = () => {
-            navigator.clipboard.writeText(currentUser.apiKey);
-            showToast('✅ API-ключ скопирован!');
-            modal.remove();
-        };
-        document.getElementById('closeApiBtn').onclick = () => modal.remove();
-        modal.onclick = (e) => { if (e.target === modal) modal.remove(); };
-    }
-    
-    function renderAuth() {
-        document.getElementById('app').innerHTML = `
-            <div class="auth-container">
-                <div class="logo-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none"><path d="M12 3L14 7L18 7.5L15 10L16 14L12 12L8 14L9 10L6 7.5L10 7L12 3Z" fill="white"/><circle cx="12" cy="12" r="2.5" fill="#7c3eff"/></svg></div>
-                <h2>MindForge AI</h2>
-                <div class="subtitle">🧠 Настоящий ИИ через OpenRouter</div>
-                <div class="tab-buttons"><button class="tab-btn active" id="showLoginBtn">🔐 Вход</button><button class="tab-btn" id="showRegisterBtn">📝 Регистрация</button></div>
-                <div id="loginForm">
-                    <input type="email" id="loginEmail" placeholder="Email" value="test@mindforge.ai">
-                    <input type="password" id="loginPassword" placeholder="Пароль" value="123">
-                    <button id="loginBtn">Войти →</button>
-                    <div id="loginError" class="error"></div>
-                </div>
-                <div id="registerForm" style="display:none">
-                    <input type="email" id="regEmail" placeholder="Email">
-                    <input type="password" id="regPassword" placeholder="Пароль (мин. 3)">
-                    <input type="password" id="regConfirm" placeholder="Повторите пароль">
-                    <button id="registerBtn">🚀 Зарегистрироваться</button>
-                    <div id="regError" class="error"></div>
+            <div class="messages" id="messages"></div>
+            <div class="input-area">
+                <div class="input-wrapper">
+                    <input type="text" id="msgInput" placeholder="Спроси меня о чём угодно..." onkeypress="if(event.key==='Enter') sendMessage()">
+                    <button onclick="sendMessage()">→</button>
                 </div>
             </div>
-        `;
-        
-        document.getElementById('showLoginBtn').onclick = () => {
-            document.getElementById('loginForm').style.display = 'block';
-            document.getElementById('registerForm').style.display = 'none';
-            document.getElementById('showLoginBtn').classList.add('active');
-            document.getElementById('showRegisterBtn').classList.remove('active');
-        };
-        document.getElementById('showRegisterBtn').onclick = () => {
-            document.getElementById('loginForm').style.display = 'none';
-            document.getElementById('registerForm').style.display = 'block';
-            document.getElementById('showRegisterBtn').classList.add('active');
-            document.getElementById('showLoginBtn').classList.remove('active');
-        };
-        
-        document.getElementById('loginBtn').onclick = () => {
-            const email = document.getElementById('loginEmail').value.trim();
-            const pass = document.getElementById('loginPassword').value;
-            if (!email || !pass) {
-                document.getElementById('loginError').textContent = 'Заполните поля';
-                return;
-            }
-            const result = loginUser(email, pass);
-            if (result.success) {
-                currentUser = result.user;
-                saveCurrent();
-                showToast(`✨ Добро пожаловать, ${currentUser.name}!`);
-                renderMain();
-            } else {
-                document.getElementById('loginError').textContent = result.error;
-            }
-        };
-        
-        document.getElementById('registerBtn').onclick = () => {
-            const email = document.getElementById('regEmail').value.trim();
-            const pass = document.getElementById('regPassword').value;
-            const confirm = document.getElementById('regConfirm').value;
-            if (!email || !pass || !confirm) {
-                document.getElementById('regError').textContent = 'Заполните поля';
-                return;
-            }
-            if (pass !== confirm) {
-                document.getElementById('regError').textContent = 'Пароли не совпадают';
-                return;
-            }
-            const result = registerUser(email, pass);
-            if (result.success) {
-                currentUser = result.user;
-                saveCurrent();
-                showToast(`🎉 Регистрация успешна! Твой API-ключ создан.`);
-                renderMain();
-            } else {
-                document.getElementById('regError').textContent = result.error;
-            }
-        };
-    }
-    
-    function renderMain() {
-        let userChats = chats.filter(c => c.user1 === currentUser.id || c.user2 === currentUser.id).sort((a, b) => b.lastUpdated - a.lastUpdated);
-        const bot = users.find(u => u.id === BOT_ID);
-        
-        if (!userChats.find(c => (c.user1 === currentUser.id && c.user2 === BOT_ID) || (c.user2 === currentUser.id && c.user1 === BOT_ID))) {
-            const newChat = createChat(currentUser.id, bot.id);
-            userChats.unshift(newChat);
-            currentChatId = newChat.id;
-        }
-        if (!currentChatId && userChats.length > 0) currentChatId = userChats[0].id;
-        
-        document.getElementById('app').innerHTML = `
-            <div class="app-container">
-                <div class="sidebar-overlay" id="sidebarOverlay"></div>
-                <div class="sidebar" id="sidebar">
-                    <div class="sidebar-header"><button class="new-chat-btn" id="newChatBtn">+ Новый чат</button></div>
-                    <div class="chats-list" id="chatsList"></div>
-                </div>
-                <div class="main">
-                    <div class="header">
-                        <div class="logo"><div class="logo-icon-small"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 3L14 7L18 7.5L15 10L16 14L12 12L8 14L9 10L6 7.5L10 7L12 3Z" fill="white"/><circle cx="12" cy="12" r="2.5" fill="#7c3eff"/></svg></div><div class="logo-text">MindForge AI</div></div>
-                        <div class="user-info"><div class="user-name">${currentUser.name}</div><div class="api-badge" id="showApiBtn">🔑 API</div><button class="logout-btn" id="logoutBtn">🚪</button></div>
-                    </div>
-                    <div class="chat-area" id="chat-area"></div>
-                    <div class="input-area">
-                        <div class="input-wrapper">
-                            <textarea id="msgInput" rows="1" placeholder="Спроси меня о чём угодно..."></textarea>
-                            <button class="send-btn" id="sendMsgBtn">→</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <button class="chats-toggle-btn" id="chatsToggleBtn">💬</button>
-        `;
-        
-        const sidebar = document.getElementById('sidebar');
-        const overlay = document.getElementById('sidebarOverlay');
-        const toggle = document.getElementById('chatsToggleBtn');
-        if (toggle) toggle.onclick = () => { sidebar.classList.toggle('open'); overlay.classList.toggle('open'); };
-        if (overlay) overlay.onclick = () => { sidebar.classList.remove('open'); overlay.classList.remove('open'); };
-        
-        const chatsList = document.getElementById('chatsList');
-        if (chatsList) {
-            chatsList.innerHTML = userChats.map(chat => {
-                const otherId = chat.user1 === currentUser.id ? chat.user2 : chat.user1;
-                const other = getUser(otherId);
-                const isBot = other && other.id === BOT_ID;
-                const lastMsg = chat.messages[chat.messages.length - 1];
-                const preview = lastMsg ? (lastMsg.isUser ? 'Вы: ' : '') + (lastMsg.text.length > 30 ? lastMsg.text.substring(0, 30) + '...' : lastMsg.text) : 'Новый чат';
-                return `<div class="chat-item ${currentChatId === chat.id ? 'active' : ''}" data-chat="${chat.id}"><div class="chat-name">${other ? other.name : 'Пользователь'} ${isBot ? '🤖' : ''}</div><div class="chat-preview">${preview}</div><button class="delete-chat" data-chat="${chat.id}">✕</button></div>`;
-            }).join('');
-            
-            document.querySelectorAll('.chat-item').forEach(el => {
-                el.addEventListener('click', (e) => {
-                    if (e.target.classList.contains('delete-chat')) return;
-                    const id = el.dataset.chat;
-                    if (id) { currentChatId = id; renderMain(); }
-                });
-                const del = el.querySelector('.delete-chat');
-                if (del) del.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    const id = del.dataset.chat;
-                    chats = chats.filter(c => c.id !== id);
-                    if (currentChatId === id) currentChatId = userChats.find(c => c.id !== id)?.id || null;
-                    saveChats();
-                    renderMain();
-                });
-            });
-        }
-        
-        const chatArea = document.getElementById('chat-area');
-        if (chatArea && currentChatId) {
-            const chat = chats.find(c => c.id === currentChatId);
-            if (chat) {
-                chatArea.innerHTML = '';
-                for (const msg of chat.messages) {
-                    const div = document.createElement('div');
-                    div.className = `message ${msg.isUser ? 'user' : 'ai'}`;
-                    div.innerHTML = `<div class="avatar">${msg.isUser ? '👤' : '🤖'}</div><div class="content">${msg.text.replace(/\n/g, '<br>')}</div>`;
-                    chatArea.appendChild(div);
-                }
-                chatArea.scrollTop = chatArea.scrollHeight;
-            }
-        }
-        
-        document.getElementById('newChatBtn').onclick = () => {
-            const newChat = createChat(currentUser.id, bot.id);
-            currentChatId = newChat.id;
-            renderMain();
-        };
-        document.getElementById('logoutBtn').onclick = () => {
-            currentUser = null;
-            currentChatId = null;
-            localStorage.removeItem('mindforge_current');
-            renderAuth();
-        };
-        document.getElementById('showApiBtn').onclick = showApiModal;
-        
-        const input = document.getElementById('msgInput');
-        const sendBtn = document.getElementById('sendMsgBtn');
-        let isSending = false;
-        
-        async function sendMessage() {
-            const text = input.value.trim();
-            if (!text || !currentChatId || isSending) return;
-            isSending = true;
-            sendBtn.disabled = true;
-            const chat = chats.find(c => c.id === currentChatId);
-            if (chat) {
-                chat.messages.push({ text: text, isUser: true, timestamp: Date.now() });
-                chat.lastUpdated = Date.now();
-                saveChats();
-                addMessage(currentChatId, text, true);
-            }
-            input.value = '';
-            input.style.height = 'auto';
-            await sendToAI(text, currentChatId, currentUser.name);
-            isSending = false;
-            sendBtn.disabled = false;
-            input.focus();
-        }
-        
-        sendBtn.onclick = sendMessage;
-        input.onkeydown = (e) => {
-            if (e.key === 'Enter' && !e.shiftKey && !isSending) {
-                e.preventDefault();
-                sendMessage();
-            }
-        };
-        input.oninput = function() {
-            this.style.height = 'auto';
-            this.style.height = Math.min(this.scrollHeight, 100) + 'px';
-        };
-        input.focus();
-    }
-    
-    loadData();
-    if (currentUser) renderMain();
-    else renderAuth();
-})();
+        </div>
+    `;
+    renderMessages();
+    document.getElementById('msgInput')?.focus();
+}
+
+// Загрузка сообщений
+const saved = localStorage.getItem('mindforge_messages');
+if (saved) messages = JSON.parse(saved);
+
+renderMain();
+
+window.onbeforeunload = () => {
+    localStorage.setItem('mindforge_messages', JSON.stringify(messages));
+};
 </script>
 </body>
 </html>
